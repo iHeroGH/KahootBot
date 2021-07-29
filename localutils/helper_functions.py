@@ -1,3 +1,4 @@
+from datetime import datetime as dt
 import re
 
 MATCHER = re.compile(r'[0-9a-zA-Z-]{35,}')
@@ -31,3 +32,12 @@ def get_quiz_link(kahoot_id):
     """
 
     return BASE_KAHOOT_URL.format(kahoot_id)
+
+def get_date(unix_time):
+    """
+    This function takes a unix time and returns the date
+    :param unix_time: int
+    :return: datetime
+    """
+
+    return dt.utcfromtimestamp(unix_time / 1000).strftime('%Y-%m-%d') # Divide by 1000 to get seconds from milliseconds
