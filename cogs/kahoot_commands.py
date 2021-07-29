@@ -31,34 +31,23 @@ class KahootCommand(vbu.Cog):
         if not requester.is_valid:
             return await ctx.send("No game was found with the given ID.")
 
-        # Format the embed
-        """
-        embed.title = "Hey"
-        embed.description = "hello"
-        embed.url = "https://www.google.com"
-        embed.set_thumbnail(url="https://kgo.googleusercontent.com/profile_vrt_raw_bytes_1587515358_10512.png")
-
-        embed.add_field(name="Popularity", value="? Plays\n? Players\n? Favorites")
-        embed.add_field(name="Questions", value="20 questions", inline=False)
-
-
-        embed.set_footer(text="Britannica • Created XX", icon_url="https://images-cdn.kahoot.it/da6787fb-43ec-4e28-b0a7-cdb2d5f1fcb0")
-        """
+        # Create the embed
         embed = vbu.Embed(use_random_colour=True)
         embed.title = f"{requester.get_title()}"
         embed.description = f"{requester.get_description()}"
-        embed.url = utils.get_quiz_link(kahoot_id)
+        embed.url = utils.get_quiz_link(kahoot_id) # Users can press the title and be redirected to the quiz link
         embed.set_thumbnail(url=requester.get_thumbnail())
 
-        embed.add_field(name="Popularity", value=requester.get_popularity())
-        embed.add_field(name="Questions", value=f"{requester.get_question_count()} questions")
+        # Add the data
+        embed.add_field(name="Popularity", value=requester.get_popularity()) # How many plays/players/favorites the quiz has
+        embed.add_field(name="Questions", value=f"{requester.get_question_count()} questions") # How many questions the quiz has
 
-        creator_name, creator_icon = requester.get_creator()
-
+        # Add the footer
+        creator_name, creator_icon = requester.get_creator() # Get the creator's name and icon
         embed.set_footer(text = f"{creator_name} • Created {utils.get_date(requester.get_created_at())}", icon_url = creator_icon)
 
+        # And send it
         await ctx.send(embed=embed)
-
         
         
 def setup(bot: vbu.Bot):
