@@ -33,22 +33,22 @@ class KahootCommand(vbu.Cog):
 
         # Create the embed
         # Set up all the variables
-        title = requester.get_title()
-        description = requester.get_description()
-        url = utils.get_quiz_link(kahoot_id)
-        thumbnail = requester.get_thumbnail()
-        popularity = requester.get_popularity()
-        question_count = requester.get_question_count()
-        creator_name, creator_icon = requester.get_creator()
-        created_at = utils.get_date(requester.get_created_at())
+        title = requester.get_title() # Title of the game
+        description = requester.get_description() # Description of the game
+        url = utils.get_quiz_link(kahoot_id) # Link to the game
+        thumbnail = requester.get_thumbnail() # Cover image of the game
+        popularity = requester.get_popularity() # Popularity of the game (Plays/Players/Favorites)
+        question_count = requester.get_question_count() # Number of questions in the game
+        creator_name, creator_icon = requester.get_creator() # Name and icon of the game creator
+        created_at = utils.get_date(requester.get_created_at()) # Date the game was created
 
         embed = vbu.Embed(use_random_colour=True)
-        embed.title = title if title else "No Title"
-        embed.description = description if description else "No Description"
+        embed.title = title if title else "No Title" # Embed title
+        embed.description = description if description else "No Description" # Embed description
         if url:
             embed.url = url # Users can press the title and be redirected to the quiz link
         if thumbnail:
-            embed.set_thumbnail(url=thumbnail)
+            embed.set_thumbnail(url=thumbnail) # Set the thumbnail
 
         # Add the data
         if popularity:
@@ -57,9 +57,7 @@ class KahootCommand(vbu.Cog):
             embed.add_field(name="Questions", value=f"{question_count} questions") # How many questions the quiz has
 
         # Add the footer
-        footer_items = utils.get_footer_items(creator_name, created_at, creator_icon)
-
-        embed.set_footer(**footer_items)
+        embed.set_footer(**utils.get_footer_items(creator_name, created_at, creator_icon))
 
         # And send it
         try:

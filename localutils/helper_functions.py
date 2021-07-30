@@ -42,6 +42,22 @@ def get_date(unix_time):
 
     return dt.utcfromtimestamp(unix_time / 1000).strftime('%Y-%m-%d') # Divide by 1000 to get seconds from milliseconds
 
+def get_footer_text(creator_name:str = None, created_at:dt = None):
+    """
+    This function takes a creator_name and returns the footer text
+    :param creator_name: string
+    :param created_at: dt
+    :return: string
+    """
+    footer_text = ""
+
+    if creator_name:
+        footer_text += f"{creator_name}"
+    if created_at:
+        footer_text += f" • Created {created_at}"
+
+    return footer_text
+
 def get_footer_items(creator_name:str = None, created_at:dt = None, creator_icon:str = None):
     """
     This function takes a creator_name and returns the footer text
@@ -60,19 +76,3 @@ def get_footer_items(creator_name:str = None, created_at:dt = None, creator_icon
         footer_items["icon_url"] = creator_icon
 
     return footer_items
-
-def get_footer_text(creator_name:str = None, created_at:dt = None):
-    """
-    This function takes a creator_name and returns the footer text
-    :param creator_name: string
-    :param created_at: dt
-    :return: string
-    """
-    footer_text = ""
-
-    if creator_name:
-        footer_text += f"{creator_name}"
-    if created_at:
-        footer_text += f" • Created {created_at}"
-
-    return footer_text
