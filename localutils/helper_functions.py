@@ -52,9 +52,9 @@ def get_footer_text(creator_name:str = None, created_at:dt = None):
     footer_text = ""
 
     if creator_name:
-        footer_text += f"{creator_name}"
+        footer_text += f"Created by {creator_name}"
     if created_at:
-        footer_text += f" • Created {created_at}"
+        footer_text += f" • {created_at}"
 
     return footer_text
 
