@@ -108,38 +108,38 @@ def get_footer_items(creator_name:str = None, created_at:dt = None, creator_icon
 
     return footer_items
 
-async def update_join_message(join_message, join_message_content, components):
+async def update_component_message(message, components, message_content=None):
     """
     This function takes the join-game message and updates it with the given content
     """
     # If we have a join message with an embed
-    if join_message.embeds:
+    if message.embeds:
         # Get the embed
-        embed = join_message.embeds[0]
+        embed = message.embeds[0]
 
         # Update the embed
-        embed.description = join_message_content
+        embed.description = message_content or embed.description
 
-        await join_message.edit(embed=embed, components=components)
+        await message.edit(embed=embed, components=components)
     else:
-        await join_message.edit(content=join_message_content, components=components)
+        await message.edit(content=message_content, components=components) if message_content else await message.edit(components=components)
 
-async def disable_components(join_message, join_message_content, components, components_to_disable):
+async def disable_components(message, components, message_content=None):
     """
     This function disables the components of a message
     """
     # Disable the components
-    [component.disable() for component in components_to_disable]
+    components.disable_components()
 
     # Update the message
-    await update_join_message(join_message, join_message_content, components)
+    await update_component_message(message, components, message_content)
 
 async def get_players(ctx):
     """
     This function gets the players for a game
     """
     # Get the players
-    players = []
+    players = {}
     # Set up the buttons
     join_button = vbu.Button(f"Join 0/5", "join",  style=vbu.ButtonStyle.SUCCESS)
     continue_button = vbu.Button(f"Continue", "continue",  style=vbu.ButtonStyle.SECONDARY)
@@ -160,29 +160,31 @@ async def get_players(ctx):
         
         ctx.bot.loop.create_task(p.ack())
 
-        if p.component.custom_id.lower() == "continue" and p.user == ctx.author and len(players) > 1:
-            return True
+        if p.component.custom_id.lower() == "continue" and len(players) > 1:
+            if p.user == ctx.author:
+                return True
+            else:
+                return False
 
-        if p.user in players:
+        if p.user in players.keys():
             return False
 
-        players.append(p.user)
+        players[p.user] = 0
         join_message_content.append(join_message_content.pop() + f"{p.user.mention}\n")
 
-        player_count = len(players)
+        player_count = len(players.keys())
         join_button.label = f"Join {player_count}/5"
 
-        ctx.bot.loop.create_task(update_join_message(join_message, join_message_content[0], components))
+        ctx.bot.loop.create_task(update_component_message(join_message, components,  join_message_content[0]))
         
         return player_count >= 5
 
     try:
         payload = await ctx.bot.wait_for("component_interaction", check=check, timeout=30)
     except asyncio.TimeoutError:
-        await disable_components(join_message, join_message_content[0], components [join_button, continue_button])
+        await disable_components(join_message, components, join_message_content[0])
     
-    await ctx.send([i.mention for i in players])
-    await disable_components(join_message, join_message_content[0], components, [join_button, continue_button])
+    await disable_components(join_message, components, join_message_content[0])
 
     return players
 

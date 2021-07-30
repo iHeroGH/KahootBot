@@ -1,6 +1,7 @@
 import aiohttp
 import humanize
 
+
 class KahootRequester(object):
     def __init__(self, quiz_data):
         self.quiz_data = quiz_data
@@ -91,10 +92,33 @@ class KahootRequester(object):
         return question_count
 
     def get_questions(self):
-        questions = []
-        if "questions" in self.card_data.keys():
-            for question in self.card_data["questions"]:
-                questions.append(question["question"])
+        questions = {}
+
+        if not self.quiz_data['kahoot']['questions']:
+            return
+
+        # Loop through the questions
+        custom_id = 0
+        for question_obj in self.quiz_data['kahoot']['questions']:
+            question_text = question_obj['question']
+            question_img = question_obj['image']
+            answers = []
+            for answer_obj in question_obj['choices']:
+                answer_obj = (self.fix_text(answer_obj['answer']), answer_obj['correct'])
+                # Add the answer object tuple to the list
+                answers.append(answer_obj)
+            
+            questions[(self.fix_text(question_text), custom_id)] = (answers, question_img)
+            custom_id += 1
         
         return questions
     
+
+    def fix_text(self, text):
+        """
+        This function takes a string and returns a string with all the special & characters replaced with their normal characters
+        :param text: string
+        :return: string
+        """
+
+        return text.replace('&amp;', '&').replace('&nbsp;', ' ')
