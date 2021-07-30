@@ -8,6 +8,10 @@ import random
 
 class KahootCommand(vbu.Cog):
 
+    def __init__(self, bot):
+        self.bot = bot
+        self.kahoot_sessions = set()
+
     @vbu.command(aliases=['kahootdata', 'getdata', 'get'])
     async def data(self, ctx: vbu.Context, kahoot: str = None):
         """
@@ -59,15 +63,24 @@ class KahootCommand(vbu.Cog):
         """
         Plays a quiz
         """
+        # Make sure they're not already playing
+        if ctx.channel.id in self.kahoot_sessions:
+            return await ctx.send("A game is already being hosted in this channel!")
+
+        # Add the channel to the set of kahoot sessions
+        self.kahoot_sessions.add(ctx.channel.id)
+
         # Get the requester
         _, requester = await utils.setup_kahoot(ctx, kahoot)
         if not requester:
-            return
+            return self.kahoot_sessions.remove(ctx.channel.id)
 
         # Get the players
-        players_dict = await utils.get_players(ctx)
+        players_dict = await utils.get_players(ctx, requester)
         if not players_dict:
-            return
+            print("removing")
+            self.kahoot_sessions.remove(ctx.channel.id)
+            print(self.kahoot_sessions)
         player_count = len(players_dict.keys())
 
         questions = requester.get_questions()
@@ -106,7 +119,6 @@ class KahootCommand(vbu.Cog):
             embed.description = question
             embed.set_image(url=question_img)
             total_question_count = requester.get_question_count()
-            #print(shuffle, len(shuffle))
             embed.set_footer(requester.get_title() + " • " + f"{total_question_count - len(shuffle)}/{total_question_count}")
             question_message = await ctx.send(embed=embed, components=components)
             
@@ -117,12 +129,12 @@ class KahootCommand(vbu.Cog):
                 if p.message.id != question_message.id:
                     return False
                 
-                ctx.bot.loop.create_task(p.ack())
-
                 if p.user not in players_dict.keys() or p.user in answered:
+                    ctx.bot.loop.create_task(p.ack())
                     return False
                 else:
                     answered.append(p.user)
+                    ctx.bot.loop.create_task(p.respond(f"You chose \"**{p.component.label}**\"!", ephemeral=True))
                 
                 if p.component in correct_answers:
                     correct.append(p.user)
@@ -142,17 +154,29 @@ class KahootCommand(vbu.Cog):
             if answered:
                 strikes = 0
 
-
             await disable_components(question_message, components)
 
             # Send a final message
-            await ctx.send("**" + random.choice(["Congrats!", "Nice!", "Correct!", "Good job!"]) + "**\n" + "\n".join([i.mention for i in correct])) if correct else await ctx.send("**" + random.choice(["No one got it!", "Wrong!", "That's not right!", "Not quite!", "Not quite right!"]) + "**")
+            if len(correct_answers) > 1:
+                correct_answers_string = '**\" and \"**'.join([answer.label for answer in correct_answers])
+                correct_answers_string = f"The correct answers were \"**{correct_answers_string}**\""
+            else:
+                correct_answers_string = f"The correct answer was \"**{correct_answers[0].label}**\""
+            
+            output_message = correct_answers_string + "\n\n"
+            output_message += utils.get_random_message(correct)
+            output_message += "\n".join([i.mention for i in correct]) if correct else ""
+            await ctx.send(output_message)
 
             await asyncio.sleep(5)
 
 
-        await ctx.send("**__Total Points__**\n" + "\n".join([f"{i.mention} - {players_dict[i]} ({(players_dict[i]/total_question_count) * 100}%)" for i in players_dict.keys()]))
+        sorted_player_list = sorted(players_dict.items(), key=lambda x: x[1], reverse=True)
 
+        await ctx.send(f"**__Winner__**\n{sorted_player_list[0][0].mention}\n\n**__Total Points__**\n" + "\n".join([f"{player.mention} - {score} ({int(score/total_question_count * 100)}%)" for player, score in sorted_player_list]))
+
+        # Remove the lock
+        self.kahoot_sessions.remove(ctx.channel.id)
 
 
         

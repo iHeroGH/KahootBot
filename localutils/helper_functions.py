@@ -2,6 +2,7 @@ import voxelbotutils as vbu
 from datetime import datetime as dt
 import re
 import asyncio
+import random
 
 from localutils.requester import KahootRequester
 
@@ -118,7 +119,11 @@ async def update_component_message(message, components, message_content=None):
         embed = message.embeds[0]
 
         # Update the embed
-        embed.description = message_content or embed.description
+        if embed.fields:
+            curr_field = embed.fields[0]
+            embed.set_field_at(0, name=curr_field.name, value=message_content)
+        else:
+            embed.description = message_content or embed.description
 
         await message.edit(embed=embed, components=components)
     else:
@@ -134,7 +139,7 @@ async def disable_components(message, components, message_content=None):
     # Update the message
     await update_component_message(message, components, message_content)
 
-async def get_players(ctx):
+async def get_players(ctx, requester):
     """
     This function gets the players for a game
     """
@@ -143,48 +148,72 @@ async def get_players(ctx):
     # Set up the buttons
     join_button = vbu.Button(f"Join 0/5", "join",  style=vbu.ButtonStyle.SUCCESS)
     continue_button = vbu.Button(f"Continue", "continue",  style=vbu.ButtonStyle.SECONDARY)
+    cancel_button = vbu.Button(f"Cancel", "cancel",  style=vbu.ButtonStyle.DANGER)
 
     # Put the buttons together 
     components = vbu.MessageComponents(
-        vbu.ActionRow(join_button, continue_button)
+        vbu.ActionRow(join_button, continue_button, cancel_button)
     )
 
     # Send the message with the buttons, wait for a response, then acknowledge the interaction
-    join_message_content = ["Press \"Join\" to join the game!\n**Players:**\n"]
-    join_message = await ctx.send(join_message_content[0], components=components)
+    embed = vbu.Embed()
+    embed.title = requester.get_title()
+    thumbnail = requester.get_thumbnail()
+    embed.set_thumbnail(url=thumbnail) if thumbnail else None
+    embed.description = "Press \"Join\" to join the game!"
+
+    embed.add_field(name="Players", value="No one has joined yet!")
+
+    join_message = await ctx.send(embed=embed, components=components)
 
     def check(p):
 
         if p.message.id != join_message.id:
             return False
         
-        ctx.bot.loop.create_task(p.ack())
+        if p.component.custom_id.lower() == "cancel":
+            ctx.bot.loop.create_task(p.ack())
 
-        if p.component.custom_id.lower() == "continue" and len(players) > 1:
             if p.user == ctx.author:
                 return True
-            else:
-                return False
+        
+        if p.component.custom_id.lower() == "continue" and len(players) > 1:
+            ctx.bot.loop.create_task(p.ack())
+
+            if p.user == ctx.author:
+                return True
 
         if p.user in players.keys():
+            ctx.bot.loop.create_task(p.ack())
+
             return False
 
         players[p.user] = 0
-        join_message_content.append(join_message_content.pop() + f"{p.user.mention}\n")
+
+        ctx.bot.loop.create_task(p.respond("You have joined the game!", ephemeral=True))
 
         player_count = len(players.keys())
         join_button.label = f"Join {player_count}/5"
 
-        ctx.bot.loop.create_task(update_component_message(join_message, components,  join_message_content[0]))
+        if join_message.embeds:
+            update_string = '\n'.join([player.mention for player in players.keys()])
+        else:
+            update_string = "Press \"Join\" to join the game!\n**Players**:\n" + '\n'.join([player.mention for player, _ in players])
         
+        ctx.bot.loop.create_task(update_component_message(join_message, components, update_string))
+
         return player_count >= 5
 
     try:
         payload = await ctx.bot.wait_for("component_interaction", check=check, timeout=60)
+        if payload.component.custom_id.lower() == "cancel":
+            await ctx.send("The game has been cancelled.")
+            await disable_components(join_message, components)
+            return
     except asyncio.TimeoutError:
-        await disable_components(join_message, components, join_message_content[0])
+        pass
     
-    await disable_components(join_message, components, join_message_content[0])
+    await disable_components(join_message, components,'\n'.join([player.mention for player in players.keys()]))
 
     if len(players) > 1:
         return players
@@ -192,4 +221,17 @@ async def get_players(ctx):
         await ctx.send("The game has been cancelled since there are too few players.")
         return
 
+def get_random_message(correct):
+    """
+    This function returns a random formatted "Good Job" or "Wrong" message based on if it is correct
+    """
+    output = "**"
 
+    if correct:
+        output += random.choice(["Congrats!", "Nice!", "Correct!", "Good job!"])
+    else:
+        output += random.choice(["No one got it!", "Wrong!", "That's not right!", "Not quite!", "Not quite right!"])
+    
+    output += "**\n"
+
+    return output
