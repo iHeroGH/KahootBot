@@ -32,23 +32,40 @@ class KahootCommand(vbu.Cog):
             return await ctx.send("No game was found with the given ID.")
 
         # Create the embed
+        # Set up all the variables
+        title = requester.get_title()
+        description = requester.get_description()
+        url = utils.get_quiz_link(kahoot_id)
+        thumbnail = requester.get_thumbnail()
+        popularity = requester.get_popularity()
+        question_count = requester.get_question_count()
+        creator_name, creator_icon = requester.get_creator()
+        created_at = utils.get_date(requester.get_created_at())
+
         embed = vbu.Embed(use_random_colour=True)
-        embed.title = f"{requester.get_title()}"
-        embed.description = f"{requester.get_description()}"
-        embed.url = utils.get_quiz_link(kahoot_id) # Users can press the title and be redirected to the quiz link
-        embed.set_thumbnail(url=requester.get_thumbnail())
+        embed.title = title if title else "No Title"
+        embed.description = description if description else "No Description"
+        if url:
+            embed.url = url # Users can press the title and be redirected to the quiz link
+        if thumbnail:
+            embed.set_thumbnail(url=thumbnail)
 
         # Add the data
-        embed.add_field(name="Popularity", value=requester.get_popularity()) # How many plays/players/favorites the quiz has
-        embed.add_field(name="Questions", value=f"{requester.get_question_count()} questions") # How many questions the quiz has
+        if popularity:
+            embed.add_field(name="Popularity", value=popularity) # How many plays/players/favorites the quiz has
+        if question_count:
+            embed.add_field(name="Questions", value=f"{question_count} questions") # How many questions the quiz has
 
         # Add the footer
-        creator_name, creator_icon = requester.get_creator() # Get the creator's name and icon
-        embed.set_footer(text = f"{creator_name} • Created {utils.get_date(requester.get_created_at())}", icon_url = creator_icon)
+        footer_items = utils.get_footer_items(creator_name, created_at, creator_icon)
+
+        embed.set_footer(**footer_items)
 
         # And send it
-        await ctx.send(embed=embed)
-        
+        try:
+            await ctx.send(embed=embed)
+        except:
+            await ctx.send("Something went wrong sending the embed.")
         
 def setup(bot: vbu.Bot):
     x = KahootCommand(bot)
