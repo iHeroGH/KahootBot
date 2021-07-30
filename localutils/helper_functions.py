@@ -1,5 +1,9 @@
+import voxelbotutils as vbu
 from datetime import datetime as dt
 import re
+import asyncio
+
+from localutils.requester import KahootRequester
 
 MATCHER = re.compile(r'[0-9a-zA-Z-]{35,}')
 
@@ -32,6 +36,33 @@ def get_quiz_link(kahoot_id):
     """
 
     return BASE_KAHOOT_URL.format(kahoot_id)
+
+async def setup_kahoot(ctx, kahoot):
+    # Get a message
+    if not kahoot:
+        await ctx.send("What quiz would you like to play? (Either the link or the long ID)")
+        kahoot = await ctx.bot.wait_for("message", timeout=120, check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
+        kahoot = kahoot.content
+
+    # Make sure we got an ID
+    try:
+        kahoot_id = find_id(kahoot)
+    except TypeError:
+        await ctx.send("I couldn't find a valid ID in your message.")
+        return (None, None)
+
+    # Get the quiz link
+    quiz_link = get_data_link(kahoot_id)
+
+    # Get a requester object
+    requester = await KahootRequester.get_quiz_data(quiz_link)
+
+    # Make sure the game is valid
+    if not requester.is_valid:
+        await ctx.send("No game was found with the given ID.")
+        return (None, None)
+    
+    return (kahoot_id, requester)
 
 def get_date(unix_time):
     """
@@ -76,3 +107,83 @@ def get_footer_items(creator_name:str = None, created_at:dt = None, creator_icon
         footer_items["icon_url"] = creator_icon
 
     return footer_items
+
+async def update_join_message(join_message, join_message_content, components):
+    """
+    This function takes the join-game message and updates it with the given content
+    """
+    # If we have a join message with an embed
+    if join_message.embeds:
+        # Get the embed
+        embed = join_message.embeds[0]
+
+        # Update the embed
+        embed.description = join_message_content
+
+        await join_message.edit(embed=embed, components=components)
+    else:
+        await join_message.edit(content=join_message_content, components=components)
+
+async def disable_components(join_message, join_message_content, components, components_to_disable):
+    """
+    This function disables the components of a message
+    """
+    # Disable the components
+    [component.disable() for component in components_to_disable]
+
+    # Update the message
+    await update_join_message(join_message, join_message_content, components)
+
+async def get_players(ctx):
+    """
+    This function gets the players for a game
+    """
+    # Get the players
+    players = []
+    # Set up the buttons
+    join_button = vbu.Button(f"Join 0/5", "join",  style=vbu.ButtonStyle.SUCCESS)
+    continue_button = vbu.Button(f"Continue", "continue",  style=vbu.ButtonStyle.SECONDARY)
+
+    # Put the buttons together 
+    components = vbu.MessageComponents(
+        vbu.ActionRow(join_button, continue_button)
+    )
+
+    # Send the message with the buttons, wait for a response, then acknowledge the interaction
+    join_message_content = ["Press \"Join\" to join the game!\n**Players:**\n"]
+    join_message = await ctx.send(join_message_content[0], components=components)
+
+    def check(p):
+
+        if p.message.id != join_message.id:
+            return False
+        
+        ctx.bot.loop.create_task(p.ack())
+
+        if p.component.custom_id.lower() == "continue" and p.user == ctx.author and len(players) > 1:
+            return True
+
+        if p.user in players:
+            return False
+
+        players.append(p.user)
+        join_message_content.append(join_message_content.pop() + f"{p.user.mention}\n")
+
+        player_count = len(players)
+        join_button.label = f"Join {player_count}/5"
+
+        ctx.bot.loop.create_task(update_join_message(join_message, join_message_content[0], components))
+        
+        return player_count >= 5
+
+    try:
+        payload = await ctx.bot.wait_for("component_interaction", check=check, timeout=30)
+    except asyncio.TimeoutError:
+        await disable_components(join_message, join_message_content[0], components [join_button, continue_button])
+    
+    await ctx.send([i.mention for i in players])
+    await disable_components(join_message, join_message_content[0], components, [join_button, continue_button])
+
+    return players
+
+

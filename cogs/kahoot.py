@@ -1,5 +1,8 @@
+from discord.ext.commands.errors import CommandInvokeError
 import voxelbotutils as vbu
 import localutils as utils
+
+import asyncio
 
 class KahootCommand(vbu.Cog):
 
@@ -8,28 +11,11 @@ class KahootCommand(vbu.Cog):
         """
         Gets the data for a given kahoot.
         """
-        
-        # Get a message
-        if not kahoot:
-            await ctx.send("What quiz would you like to play? (Either the link or the long ID)")
-            kahoot = await self.bot.wait_for("message", timeout=120, check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
-            kahoot = kahoot.content
 
-        # Make sure we got an ID
-        try:
-            kahoot_id = utils.find_id(kahoot)
-        except TypeError:
-            return await ctx.send("I couldn't find a valid ID in your message.")
+        kahoot_id, requester = await utils.setup_kahoot(ctx, kahoot)
 
-        # Get the quiz link
-        quiz_link = utils.get_data_link(kahoot_id)
-
-        # Get a requester object
-        requester = await utils.KahootRequester.get_quiz_data(quiz_link)
-
-        # Make sure the game is valid
-        if not requester.is_valid:
-            return await ctx.send("No game was found with the given ID.")
+        if not requester:
+            return
 
         # Create the embed
         # Set up all the variables
@@ -64,6 +50,26 @@ class KahootCommand(vbu.Cog):
             await ctx.send(embed=embed)
         except:
             await ctx.send("Something went wrong sending the embed.")
+
+    @vbu.command(aliases=['kahoot', 'quiz'])
+    async def play(self, ctx: vbu.Context, kahoot: str = None):
+        """
+        Plays a quiz
+        """
+        # Get the requester
+        _, requester = await utils.setup_kahoot(ctx, kahoot)
+        if not requester:
+            return
+
+        # Get the players
+        players = await utils.get_players(ctx)
+        if not players:
+            return
+
+        
+        
+
+
         
 def setup(bot: vbu.Bot):
     x = KahootCommand(bot)
