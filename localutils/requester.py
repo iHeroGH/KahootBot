@@ -121,4 +121,4 @@ class KahootRequester(object):
         :return: string
         """
 
-        return text.replace('&amp;', '&').replace('&nbsp;', ' ')
+        return text.replace('&amp;', '&').replace('&nbsp;', ' ').replace('&quot;', '"').replace('&apos;', "'").replace("<b>", "**").replace("</b>", "**").replace("<i>", "*").replace("</i", "*")

@@ -151,7 +151,7 @@ class KahootCommand(vbu.Cog):
             await asyncio.sleep(5)
 
 
-        await ctx.send("**__Total Points__**\n" + "\n".join([f"{i.mention} - {players_dict[i]}" for i in players_dict.keys()]))
+        await ctx.send("**__Total Points__**\n" + "\n".join([f"{i.mention} - {players_dict[i]} ({(players_dict[i]/total_question_count) * 100}%)" for i in players_dict.keys()]))
 
 
 

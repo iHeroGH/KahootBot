@@ -180,12 +180,16 @@ async def get_players(ctx):
         return player_count >= 5
 
     try:
-        payload = await ctx.bot.wait_for("component_interaction", check=check, timeout=30)
+        payload = await ctx.bot.wait_for("component_interaction", check=check, timeout=60)
     except asyncio.TimeoutError:
         await disable_components(join_message, components, join_message_content[0])
     
     await disable_components(join_message, components, join_message_content[0])
 
-    return players
+    if len(players) > 1:
+        return players
+    else:
+        await ctx.send("The game has been cancelled since there are too few players.")
+        return
 
 
