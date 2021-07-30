@@ -78,9 +78,7 @@ class KahootCommand(vbu.Cog):
         # Get the players
         players_dict = await utils.get_players(ctx, requester)
         if not players_dict:
-            print("removing")
-            self.kahoot_sessions.remove(ctx.channel.id)
-            print(self.kahoot_sessions)
+            return self.kahoot_sessions.remove(ctx.channel.id)
         player_count = len(players_dict.keys())
 
         questions = requester.get_questions()
