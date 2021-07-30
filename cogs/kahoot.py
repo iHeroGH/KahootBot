@@ -30,7 +30,8 @@ class KahootCommand(vbu.Cog):
         creator_name, creator_icon = requester.get_creator() # Name and icon of the game creator
         created_at = utils.get_date(requester.get_created_at()) # Date the game was created
 
-        embed = vbu.Embed(use_random_colour=True)
+        embed = vbu.Embed()
+        embed.color = 5047956
         embed.title = title if title else "No Title" # Embed title
         embed.description = description if description else "No Description" # Embed description
         if url:
@@ -100,7 +101,8 @@ class KahootCommand(vbu.Cog):
             )
 
             # Set up the embed
-            embed = vbu.Embed(use_random_colour=True)
+            embed = vbu.Embed()
+            embed.color = 5047956
             embed.description = question
             embed.set_image(url=question_img)
             total_question_count = requester.get_question_count()
