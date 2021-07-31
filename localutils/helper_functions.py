@@ -193,7 +193,7 @@ async def get_players(ctx, requester):
         ctx.bot.loop.create_task(p.respond("You have joined the game!", ephemeral=True))
 
         player_count = len(players.keys())
-        join_button.label = f"Join {player_count}/5"
+        join_button.label = f"Join {player_count}/10"
 
         if join_message.embeds:
             update_string = '\n'.join([player.mention for player in players.keys()])
@@ -202,7 +202,7 @@ async def get_players(ctx, requester):
         
         ctx.bot.loop.create_task(update_component_message(join_message, components, update_string))
 
-        return player_count >= 5
+        return player_count >= 10
 
     try:
         payload = await ctx.bot.wait_for("component_interaction", check=check, timeout=60)
