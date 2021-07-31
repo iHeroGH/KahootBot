@@ -41,7 +41,7 @@ def get_quiz_link(kahoot_id):
 async def setup_kahoot(ctx, kahoot):
     # Get a message
     if not kahoot:
-        await ctx.send("What quiz would you like to play? (Either the link or the long ID)")
+        await ctx.send("What quiz would you like to play? (Either the link or the long ID from <https://create.kahoot.it/>)")
         kahoot = await ctx.bot.wait_for("message", timeout=120, check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
         kahoot = kahoot.content
 
