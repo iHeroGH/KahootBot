@@ -141,7 +141,7 @@ class KahootCommand(vbu.Cog):
                     return False
 
                 if p.user not in players_dict.keys() or p.user in answered:
-                    ctx.bot.loop.create_task(p.ack())
+                    ctx.bot.loop.create_task(p.responsedefer_update())
                     return False
                 else:
                     answered.append(p.user)
@@ -160,7 +160,6 @@ class KahootCommand(vbu.Cog):
                     return False
                 else:
                     answered.append(message.author)
-                    ctx.bot.loop.create_task(message.ack())
 
                 if message.content.lower() in correct_answer_strings:
                     correct.append(message.author)
