@@ -4,6 +4,8 @@ import re
 import asyncio
 import random
 
+import discord
+
 from localutils.requester import KahootRequester
 
 MATCHER = re.compile(r'[0-9a-zA-Z-]{35,}')
@@ -146,13 +148,13 @@ async def get_players(ctx, requester):
     # Get the players
     players = {}
     # Set up the buttons
-    join_button = vbu.Button(f"Join 0/5", "join",  style=vbu.ButtonStyle.SUCCESS)
-    continue_button = vbu.Button(f"Continue", "continue",  style=vbu.ButtonStyle.SECONDARY)
-    cancel_button = vbu.Button(f"Cancel", "cancel",  style=vbu.ButtonStyle.DANGER)
+    join_button = discord.ui.Button(f"Join 0/5", "join",  style=discord.ui.ButtonStyle.SUCCESS)
+    continue_button = discord.ui.Button(f"Continue", "continue",  style=discord.ui.ButtonStyle.SECONDARY)
+    cancel_button = discord.ui.Button(f"Cancel", "cancel",  style=discord.ui.ButtonStyle.DANGER)
 
     # Put the buttons together
-    components = vbu.MessageComponents(
-        vbu.ActionRow(join_button, continue_button, cancel_button)
+    components = discord.ui.MessageComponents(
+        discord.ui.ActionRow(join_button, continue_button, cancel_button)
     )
 
     # Send the message with the buttons, wait for a response, then acknowledge the interaction

@@ -1,7 +1,8 @@
 from localutils.helper_functions import disable_components
-from discord.ext.commands.errors import CommandInvokeError
 import voxelbotutils as vbu
 import localutils as utils
+
+import discord
 
 import asyncio
 import random
@@ -102,8 +103,8 @@ class KahootCommand(vbu.Cog):
             correct_answer_strings = []
             for i, answer in enumerate(answers):
                 answer_string = answer[0]
-                answer_button = vbu.Button(answer_string, "answer" + str(i),  style=vbu.ButtonStyle.SECONDARY)
-                action_row = vbu.ActionRow(answer_button)
+                answer_button = discord.ui.Button(answer_string, "answer" + str(i),  style=discord.ui.ButtonStyle.SECONDARY)
+                action_row = discord.ui.ActionRow(answer_button)
                 action_rows.append(action_row)
 
                 if answer[1]:
@@ -111,7 +112,7 @@ class KahootCommand(vbu.Cog):
                     correct_answer_strings.append(answer_string)
 
             # Put the buttons together
-            components = vbu.MessageComponents(
+            components = discord.ui.MessageComponents(
                 *action_rows
             )
 
