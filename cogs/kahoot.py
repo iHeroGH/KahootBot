@@ -95,12 +95,12 @@ class KahootCommand(vbu.Cog):
         # Get the requester
         _, requester = await utils.setup_kahoot(ctx, kahoot)
         if not requester:
-            return self.kahoot_sessions.remove(ctx.channel.id)
+            return self.kahoot_sessions.pop(ctx.channel.id)
 
         # Get the players
         players_dict = await utils.get_players(ctx, requester)
         if not players_dict:
-            return self.kahoot_sessions.remove(ctx.channel.id)
+            return self.kahoot_sessions.pop(ctx.channel.id)
         player_count = len(players_dict.keys())
 
         questions = requester.get_questions()
@@ -229,7 +229,7 @@ class KahootCommand(vbu.Cog):
         await ctx.send(f"**__Winner__**\n{sorted_player_list[0][0].mention}\n\n**__Total Points__**\n" + "\n".join([f"{player.mention} - {score} ({int(score/total_question_count * 100)}%)" for player, score in sorted_player_list]))
 
         # Remove the lock
-        self.kahoot_sessions.remove(ctx.channel.id)
+        self.kahoot_sessions.pop(ctx.channel.id)
 
 
 
