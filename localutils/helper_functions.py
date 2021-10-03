@@ -193,7 +193,7 @@ async def get_players(ctx, requester):
 
         players[p.user] = 0
 
-        ctx.bot.loop.create_task(p.respond("You have joined the game!", ephemeral=True))
+        ctx.bot.loop.create_task(p.response.send_message("You have joined the game!", ephemeral=True))
 
         player_count = len(players.keys())
         join_button.label = f"Join {player_count}/10"

@@ -145,7 +145,7 @@ class KahootCommand(vbu.Cog):
                     return False
                 else:
                     answered.append(p.user)
-                    ctx.bot.loop.create_task(p.respond(f"You chose \"**{p.component.label}**\"!", ephemeral=True))
+                    ctx.bot.loop.create_task(p.response.send_message(f"You chose \"**{p.component.label}**\"!", ephemeral=True))
 
                 if p.component in correct_answers:
                     correct.append(p.user)
