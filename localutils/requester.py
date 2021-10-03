@@ -12,7 +12,7 @@ class KahootRequester(object):
         async with aiohttp.ClientSession() as session:
             async with session.get(quiz_link) as resp:
                 return cls(await resp.json())
-    
+
     def is_valid(self):
         if "error" in self.quiz_data.keys():
             return False
@@ -24,7 +24,7 @@ class KahootRequester(object):
             title = self.card_data["title"]
 
         return title
-    
+
     def get_description(self):
         description = None
         if "description" in self.card_data.keys():
@@ -88,7 +88,7 @@ class KahootRequester(object):
         question_count = None
         if "number_of_questions" in self.card_data.keys():
             question_count =  self.card_data["number_of_questions"]
-        
+
         return question_count
 
     def get_questions(self):
@@ -100,19 +100,26 @@ class KahootRequester(object):
         # Loop through the questions
         custom_id = 0
         for question_obj in self.quiz_data['kahoot']['questions']:
-            question_text = question_obj['question']
-            question_img = question_obj['image']
+            question_type = question_obj['type'] # Type of question
+            question_text = question_obj['question'] # Text of question
+
+            # Question image if it exists
+            question_img = None
+            if 'image' in question_obj.keys():
+                question_img = question_obj['image']
+
+            # Answers
             answers = []
             for answer_obj in question_obj['choices']:
                 answer_obj = (self.fix_text(answer_obj['answer']), answer_obj['correct'])
                 # Add the answer object tuple to the list
                 answers.append(answer_obj)
-            
-            questions[(self.fix_text(question_text), custom_id)] = (answers, question_img)
+
+            questions[(self.fix_text(question_text), custom_id)] = (question_type, answers, question_img)
             custom_id += 1
-        
+
         return questions
-    
+
 
     def fix_text(self, text):
         """

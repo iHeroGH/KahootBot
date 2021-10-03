@@ -62,7 +62,7 @@ async def setup_kahoot(ctx, kahoot):
     if not requester.is_valid:
         await ctx.send("No game was found with the given ID.")
         return (None, None)
-    
+
     return (kahoot_id, requester)
 
 def get_date(unix_time):
@@ -95,7 +95,7 @@ def get_footer_items(creator_name:str = None, created_at:dt = None, creator_icon
     This function takes a creator_name and returns the footer text
     :param creator_name: string
     :param created_at: dt
-    :param 
+    :param
     :return: dict
     """
     footer_text = get_footer_text(creator_name, created_at)
@@ -150,7 +150,7 @@ async def get_players(ctx, requester):
     continue_button = vbu.Button(f"Continue", "continue",  style=vbu.ButtonStyle.SECONDARY)
     cancel_button = vbu.Button(f"Cancel", "cancel",  style=vbu.ButtonStyle.DANGER)
 
-    # Put the buttons together 
+    # Put the buttons together
     components = vbu.MessageComponents(
         vbu.ActionRow(join_button, continue_button, cancel_button)
     )
@@ -170,18 +170,19 @@ async def get_players(ctx, requester):
 
         if p.message.id != join_message.id:
             return False
-        
+
         if p.component.custom_id.lower() == "cancel":
             ctx.bot.loop.create_task(p.ack())
 
             if p.user == ctx.author:
                 return True
-        
+
         if p.component.custom_id.lower() == "continue" and len(players) > 1:
             ctx.bot.loop.create_task(p.ack())
 
             if p.user == ctx.author:
                 return True
+            return False
 
         if p.user in players.keys():
             ctx.bot.loop.create_task(p.ack())
@@ -199,7 +200,7 @@ async def get_players(ctx, requester):
             update_string = '\n'.join([player.mention for player in players.keys()])
         else:
             update_string = "Press \"Join\" to join the game!\n**Players**:\n" + '\n'.join([player.mention for player, _ in players])
-        
+
         ctx.bot.loop.create_task(update_component_message(join_message, components, update_string))
 
         return player_count >= 10
@@ -212,7 +213,7 @@ async def get_players(ctx, requester):
             return
     except asyncio.TimeoutError:
         pass
-    
+
     await disable_components(join_message, components,'\n'.join([player.mention for player in players.keys()]))
 
     if len(players) > 1:
@@ -231,7 +232,7 @@ def get_random_message(correct):
         output += random.choice(["Congrats!", "Nice!", "Correct!", "Good job!"])
     else:
         output += random.choice(["No one got it!", "Wrong!", "That's not right!", "Not quite!", "Not quite right!"])
-    
+
     output += "**\n"
 
     return output

@@ -94,19 +94,23 @@ class KahootCommand(vbu.Cog):
             question, _ = shuffle_obj
 
             # Set up the question variables
-            answers, question_img = questions[shuffle_obj]
+            question_type, answers, question_img = questions[shuffle_obj]
 
             # Set up the answer buttons
             action_rows = []
             correct_answers = []
+            correct_answer_strings = []
             for i, answer in enumerate(answers):
-                answer_button = vbu.Button(answer[0], "answer" + str(i),  style=vbu.ButtonStyle.SECONDARY)
+                answer_string = answer[0]
+                answer_button = vbu.Button(answer_string, "answer" + str(i),  style=vbu.ButtonStyle.SECONDARY)
                 action_row = vbu.ActionRow(answer_button)
                 action_rows.append(action_row)
 
-                correct_answers.append(answer_button) if answer[1] else None
-            
-            # Put the buttons together 
+                if answer[1]:
+                    correct_answers.append(answer_button)
+                    correct_answer_strings.append(answer_string)
+
+            # Put the buttons together
             components = vbu.MessageComponents(
                 *action_rows
             )
@@ -114,34 +118,60 @@ class KahootCommand(vbu.Cog):
             # Set up the embed
             embed = vbu.Embed()
             embed.color = 5047956
-            embed.description = question
-            embed.set_image(url=question_img)
+            embed.description = question + ("\n(The next thing you type will be registered as your answer)" if question_type == 'open_ended' else "")
+            if question_img:
+                embed.set_image(url=question_img)
             total_question_count = requester.get_question_count()
             embed.set_footer(requester.get_title() + " • " + f"{total_question_count - len(shuffle)}/{total_question_count}")
-            question_message = await ctx.send(embed=embed, components=components)
-            
+
+            params = {
+                'embed': embed
+            }
+            if question_type != 'open_ended':
+                params['components'] = components
+
+            question_message = await ctx.send(**params)
+
             answered = []
             correct = []
             def check(p):
 
                 if p.message.id != question_message.id:
                     return False
-                
+
                 if p.user not in players_dict.keys() or p.user in answered:
                     ctx.bot.loop.create_task(p.ack())
                     return False
                 else:
                     answered.append(p.user)
                     ctx.bot.loop.create_task(p.respond(f"You chose \"**{p.component.label}**\"!", ephemeral=True))
-                
+
                 if p.component in correct_answers:
                     correct.append(p.user)
                     players_dict[p.user] += 1
-                
+
+                return len(answered) == player_count
+
+            def open_ended_check(message):
+                if message.channel.id != question_message.channel.id:
+                    return False
+                if message.author not in players_dict.keys() or message.author in answered:
+                    return False
+                else:
+                    answered.append(message.author)
+                    ctx.bot.loop.create_task(message.ack())
+
+                if message.content.lower() in correct_answer_strings:
+                    correct.append(message.author)
+                    players_dict[message.author] += 1
+
                 return len(answered) == player_count
 
             try:
-                payload = await ctx.bot.wait_for("component_interaction", check=check, timeout=30)
+                if question_type == 'open_ended':
+                    await ctx.bot.wait_for('message', check=open_ended_check, timeout=60)
+                else:
+                    await ctx.bot.wait_for("component_interaction", check=check, timeout=30)
             except asyncio.TimeoutError:
                 if not answered:
                     strikes += 1
@@ -160,7 +190,7 @@ class KahootCommand(vbu.Cog):
                 correct_answers_string = f"The correct answers were \"**{correct_answers_string}**\""
             else:
                 correct_answers_string = f"The correct answer was \"**{correct_answers[0].label}**\""
-            
+
             output_message = correct_answers_string + "\n\n"
             output_message += utils.get_random_message(correct)
             output_message += "\n".join([i.mention for i in correct]) if correct else ""
@@ -177,7 +207,7 @@ class KahootCommand(vbu.Cog):
         self.kahoot_sessions.remove(ctx.channel.id)
 
 
-        
+
 def setup(bot: vbu.Bot):
     x = KahootCommand(bot)
     bot.add_cog(x)
