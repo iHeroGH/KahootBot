@@ -11,7 +11,7 @@ class KahootCommand(vbu.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.kahoot_sessions = set()
+        self.kahoot_sessions = dict()
 
     @vbu.command(aliases=['kahootdata', 'getdata', 'get'])
     async def data(self, ctx: vbu.Context, kahoot: str = None):
@@ -59,6 +59,23 @@ class KahootCommand(vbu.Cog):
         except:
             await ctx.send("Something went wrong sending the embed.")
 
+    @vbu.command(aliases=['cancelgame', 'end'])
+    async def cancel(self, ctx: vbu.Context, password: str = None):
+        """
+        Cancels the current kahoot game.
+        """
+        if not password:
+            return await ctx.send("Check your DMs for the Kahoot game's password!")
+
+        if ctx.channel.id not in self.kahoot_sessions.keys():
+            return await ctx.send("There is no Kahoot game in this channel!")
+
+        if password != self.kahoot_sessions[ctx.channel.id]:
+            return await ctx.send("The password you entered is incorrect!")
+
+        await ctx.send("Cancelling the game.")
+        self.kahoot_sessions.pop(ctx.channel.id)
+
     @vbu.command(aliases=['kahoot', 'quiz'])
     async def play(self, ctx: vbu.Context, kahoot: str = None):
         """
@@ -69,7 +86,11 @@ class KahootCommand(vbu.Cog):
             return await ctx.send("A game is already being hosted in this channel!")
 
         # Add the channel to the set of kahoot sessions
-        self.kahoot_sessions.add(ctx.channel.id)
+        password = utils.get_password()
+        self.kahoot_sessions[ctx.channel.id] = password
+
+        # Send the user the password
+        await ctx.author.send("You have started a Kahoot game! If you must cancel the game at any point, run `/cancel <password>` in the channel of the game. Enjoy!")
 
         # Get the requester
         _, requester = await utils.setup_kahoot(ctx, kahoot)
@@ -90,6 +111,10 @@ class KahootCommand(vbu.Cog):
 
         strikes = 0
         while shuffle:
+            # If the game was cancelled prematurely
+            if ctx.channel.id not in self.kahoot_sessions.keys():
+                shuffle = []
+                break
             # Get a question and go to the next in the shuffle
             shuffle_obj = shuffle.pop(0)
             question, _ = shuffle_obj
@@ -141,7 +166,7 @@ class KahootCommand(vbu.Cog):
                     return False
 
                 if p.user not in players_dict.keys() or p.user in answered:
-                    ctx.bot.loop.create_task(p.responsedefer_update())
+                    ctx.bot.loop.create_task(p.response.defer_update())
                     return False
                 else:
                     answered.append(p.user)

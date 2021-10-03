@@ -3,6 +3,7 @@ from datetime import datetime as dt
 import re
 import asyncio
 import random
+import string
 
 import discord
 
@@ -238,3 +239,7 @@ def get_random_message(correct):
     output += "**\n"
 
     return output
+
+def get_password():
+
+    return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
