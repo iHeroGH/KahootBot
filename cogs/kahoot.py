@@ -90,7 +90,7 @@ class KahootCommand(vbu.Cog):
         self.kahoot_sessions[ctx.channel.id] = password
 
         # Send the user the password
-        await ctx.author.send("You have started a Kahoot game! If you must cancel the game at any point, run `/cancel <password>` in the channel of the game. Enjoy!")
+        await ctx.author.send(f"You have started a Kahoot game! If you must cancel the game at any point, run `/cancel {password}` in the channel of the game. Enjoy!")
 
         # Get the requester
         _, requester = await utils.setup_kahoot(ctx, kahoot)
