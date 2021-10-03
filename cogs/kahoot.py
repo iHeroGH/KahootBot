@@ -103,7 +103,7 @@ class KahootCommand(vbu.Cog):
             correct_answer_strings = []
             for i, answer in enumerate(answers):
                 answer_string = answer[0]
-                answer_button = discord.ui.Button(answer_string, "answer" + str(i),  style=discord.ui.ButtonStyle.secondary)
+                answer_button = discord.ui.Button(label=answer_string, custom_id="answer" + str(i),  style=discord.ui.ButtonStyle.secondary)
                 action_row = discord.ui.ActionRow(answer_button)
                 action_rows.append(action_row)
 

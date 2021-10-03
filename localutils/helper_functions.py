@@ -148,9 +148,9 @@ async def get_players(ctx, requester):
     # Get the players
     players = {}
     # Set up the buttons
-    join_button = discord.ui.Button(f"Join 0/5", "join",  style=discord.ui.ButtonStyle.success)
-    continue_button = discord.ui.Button(f"Continue", "continue",  style=discord.ui.ButtonStyle.secondary)
-    cancel_button = discord.ui.Button(f"Cancel", "cancel",  style=discord.ui.ButtonStyle.danger)
+    join_button = discord.ui.Button(label = f"Join 0/5", custom_id = "join",  style=discord.ui.ButtonStyle.success)
+    continue_button = discord.ui.Button(label = f"Continue", custom_id = "continue",  style=discord.ui.ButtonStyle.secondary)
+    cancel_button = discord.ui.Button(label = f"Cancel", custom_id = "cancel",  style=discord.ui.ButtonStyle.danger)
 
     # Put the buttons together
     components = discord.ui.MessageComponents(
