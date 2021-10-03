@@ -174,20 +174,20 @@ async def get_players(ctx, requester):
             return False
 
         if p.component.custom_id.lower() == "cancel":
-            ctx.bot.loop.create_task(p.ack())
+            ctx.bot.loop.create_task(p.response.defer_update())
 
             if p.user == ctx.author:
                 return True
 
         if p.component.custom_id.lower() == "continue" and len(players) > 1:
-            ctx.bot.loop.create_task(p.ack())
+            ctx.bot.loop.create_task(p.response.defer_update())
 
             if p.user == ctx.author:
                 return True
             return False
 
         if p.user in players.keys():
-            ctx.bot.loop.create_task(p.ack())
+            ctx.bot.loop.create_task(p.response.defer_update())
 
             return False
 
