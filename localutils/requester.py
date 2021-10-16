@@ -107,6 +107,9 @@ class KahootRequester(object):
             question_type = question_obj['type'] # Type of question
             question_text = question_obj['question'] # Text of question
 
+            if question_type in ['jumble', 'content']: # Question types to skip
+                continue
+
             # Question image if it exists
             question_img = None
             if 'image' in question_obj.keys():
