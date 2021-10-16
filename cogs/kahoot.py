@@ -121,7 +121,7 @@ class KahootCommand(vbu.Cog):
             question, _ = shuffle_obj
 
             # Set up the question variables
-            question_type, answers, question_img = questions[shuffle_obj]
+            question_type, answers, question_img, question_video = questions[shuffle_obj]
 
             # Set up the answer buttons
             action_rows = []
@@ -145,7 +145,9 @@ class KahootCommand(vbu.Cog):
             # Set up the embed
             embed = vbu.Embed()
             embed.color = 5047956
-            embed.description = question + ("\n(The next thing you type will be registered as your answer)" if question_type == 'open_ended' else "")
+            embed.description = question
+            embed.description += "\n(The next thing you type will be registered as your answer)" if question_type == 'open_ended' else ""
+            embed.description += f"\nVideo Link: {question_video}" if question_video else ""
             if question_img:
                 embed.set_image(url=question_img)
             embed.set_footer(requester.get_title() + " • " + f"{total_question_count - len(shuffle)}/{total_question_count}")

@@ -180,6 +180,8 @@ async def get_players(ctx, requester):
             if p.user == ctx.author:
                 return True
 
+            return False
+
         if p.component.custom_id.lower() == "continue":
             ctx.bot.loop.create_task(p.response.defer_update())
 

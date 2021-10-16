@@ -115,6 +115,11 @@ class KahootRequester(object):
             if 'image' in question_obj.keys():
                 question_img = question_obj['image']
 
+            # Question video if it exists
+            question_video = None
+            if 'video' in question_obj.keys():
+                question_video = question_obj['video']['fullUrl'] or question_video
+
             # Answers
             answers = []
             for answer_obj in question_obj['choices']:
@@ -122,7 +127,7 @@ class KahootRequester(object):
                 # Add the answer object tuple to the list
                 answers.append(answer_obj)
 
-            questions[(self.fix_text(question_text), custom_id)] = (question_type, answers, question_img)
+            questions[(self.fix_text(question_text), custom_id)] = (question_type, answers, question_img, question_video)
             custom_id += 1
 
         return questions
