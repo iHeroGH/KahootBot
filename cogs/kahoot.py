@@ -107,6 +107,7 @@ class KahootCommand(vbu.Cog):
 
         # Set the shuffle
         shuffle = list(questions.keys())
+        total_question_count = len(shuffle)
         random.shuffle(shuffle)
 
         strikes = 0
@@ -147,7 +148,6 @@ class KahootCommand(vbu.Cog):
             embed.description = question + ("\n(The next thing you type will be registered as your answer)" if question_type == 'open_ended' else "")
             if question_img:
                 embed.set_image(url=question_img)
-            total_question_count = requester.get_question_count()
             embed.set_footer(requester.get_title() + " • " + f"{total_question_count - len(shuffle)}/{total_question_count}")
 
             params = {
@@ -185,6 +185,7 @@ class KahootCommand(vbu.Cog):
                     return False
                 else:
                     answered.append(message.author)
+                    self.bot.loop.create_task(message.add_reaction("✅"))
 
                 if message.content.lower() in correct_answer_strings:
                     correct.append(message.author)
