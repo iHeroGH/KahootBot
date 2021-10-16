@@ -94,12 +94,16 @@ class KahootRequester(object):
     def get_questions(self):
         questions = {}
 
+        if 'questions' not in self.quiz_data['kahoot'].keys():
+            return
         if not self.quiz_data['kahoot']['questions']:
             return
 
         # Loop through the questions
         custom_id = 0
         for question_obj in self.quiz_data['kahoot']['questions']:
+            if 'question' not in question_obj.keys():
+                continue
             question_type = question_obj['type'] # Type of question
             question_text = question_obj['question'] # Text of question
 
