@@ -107,7 +107,7 @@ class KahootRequester(object):
             question_type = question_obj['type'] # Type of question
             question_text = question_obj['question'] # Text of question
 
-            if question_type in ['jumble', 'content']: # Question types to skip
+            if question_type in ['jumble', 'content']: # Question types to skip (puzzle, slide)
                 continue
 
             # Question image if it exists
@@ -123,12 +123,14 @@ class KahootRequester(object):
             # Answers
             answers = []
             for answer_obj in question_obj['choices']:
+                if 'answer' not in answer_obj.keys():
+                    break
                 answer_obj = (self.fix_text(answer_obj['answer']), answer_obj['correct'])
                 # Add the answer object tuple to the list
                 answers.append(answer_obj)
-
-            questions[(self.fix_text(question_text), custom_id)] = (question_type, answers, question_img, question_video)
-            custom_id += 1
+            else:
+                questions[(self.fix_text(question_text), custom_id)] = (question_type, answers, question_img, question_video)
+                custom_id += 1
 
         return questions
 
