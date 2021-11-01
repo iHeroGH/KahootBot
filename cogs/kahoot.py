@@ -135,7 +135,7 @@ class KahootCommand(vbu.Cog):
 
                 if answer[1]:
                     correct_answers.append(answer_button)
-                    correct_answer_strings.append(answer_string)
+                    correct_answer_strings.append(answer_string.lower())
 
             # Put the buttons together
             components = discord.ui.MessageComponents(
