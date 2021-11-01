@@ -216,6 +216,8 @@ class KahootCommand(vbu.Cog):
             if len(correct_answers) > 1:
                 correct_answers_string = '**\" and \"**'.join([answer.label for answer in correct_answers])
                 correct_answers_string = f"The correct answers were \"**{correct_answers_string}**\""
+            elif not correct_answers:
+                correct_answers_string = f"There were no correct answers!"
             else:
                 correct_answers_string = f"The correct answer was \"**{correct_answers[0].label}**\""
 
