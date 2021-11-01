@@ -128,7 +128,6 @@ class KahootRequester(object):
                 if 'answer' not in answer_obj.keys():
                     break
                 correct_answer = answer_obj['correct'] or question_type == "survey"
-                print(question_type)
                 answer_obj = (self.fix_text(answer_obj['answer']), correct_answer)
                 # Add the answer object tuple to the list
                 answers.append(answer_obj)
