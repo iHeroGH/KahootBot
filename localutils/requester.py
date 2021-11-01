@@ -117,7 +117,9 @@ class KahootRequester(object):
 
             # Question video if it exists
             question_video = None
-            if 'video' in question_obj.keys():
+            if 'video' in question_obj.keys() and question_obj['video']['id']:
+                if 'fullUrl' not in question_obj['video'].keys(): # If the video has a URL
+                    continue
                 question_video = question_obj['video']['fullUrl'] or question_video
 
             # Answers
