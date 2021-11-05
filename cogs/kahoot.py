@@ -236,7 +236,10 @@ class KahootCommand(vbu.Cog):
 
         sorted_player_list = sorted(players_dict.items(), key=lambda x: x[1], reverse=True)
 
-        await ctx.send(f"**__Winner__**\n{sorted_player_list[0][0].mention}\n\n**__Total Points__**\n" + "\n".join([f"{player.mention} - {score} ({int(score/total_question_count * 100)}%)" for player, score in sorted_player_list]))
+        try:
+            await ctx.send(f"**__Winner__**\n{sorted_player_list[0][0].mention}\n\n**__Total Points__**\n" + "\n".join([f"{player.mention} - {score} ({int(score/total_question_count * 100)}%)" for player, score in sorted_player_list]))
+        except ZeroDivisionError:
+            pass
 
         # Remove the lock
         if ctx.channel.id in self.kahoot_sessions.keys():
