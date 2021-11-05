@@ -106,6 +106,7 @@ class KahootCommand(vbu.Cog):
 
         # Set the shuffle
         shuffle = list(questions.keys())
+        print(shuffle)
         total_question_count = len(shuffle)
         random.shuffle(shuffle)
 
