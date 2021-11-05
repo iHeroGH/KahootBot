@@ -85,17 +85,19 @@ class KahootCommand(vbu.Cog):
         if ctx.channel.id in self.kahoot_sessions:
             return await ctx.send("A game is already being hosted in this channel!")
 
+
         # Add the channel to the set of kahoot sessions
         password = utils.get_password()
         self.kahoot_sessions[ctx.channel.id] = password
 
-        # Send the user the password
-        await ctx.author.send(f"You have started a Kahoot game! If you must cancel the game at any point, run `/cancel {password}` in the channel of the game. Enjoy!")
-
         # Get the requester
         _, requester = await utils.setup_kahoot(ctx, kahoot)
         if not requester:
+            # If we didn't find the kahoot
             return self.kahoot_sessions.pop(ctx.channel.id)
+        else:
+            # Send the user the password
+            await ctx.author.send(f"You have started a Kahoot game! If you must cancel the game at any point, run `/cancel {password}` in the channel of the game. Enjoy!")
 
         # Get the players
         players_dict = await utils.get_players(ctx, requester)
