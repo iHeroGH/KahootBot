@@ -206,7 +206,8 @@ class KahootCommand(vbu.Cog):
                     strikes += 1
                 if strikes == 3:
                     break
-                await disable_components(question_message, components)
+                if question_type != 'open-ended':
+                    await disable_components(question_message, components)
 
             if answered:
                 strikes = 0
