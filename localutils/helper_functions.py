@@ -14,7 +14,7 @@ MATCHER = re.compile(r'[0-9a-zA-Z-]{35,}')
 BASE_DATA_URL = "https://create.kahoot.it/rest/kahoots/{}/card/?includeKahoot=true"
 BASE_KAHOOT_URL = "https://create.kahoot.it/details/{}"
 
-MAX_PLAYERS = 10
+MAX_PLAYERS = 15
 
 def find_id(input_string):
     """
@@ -214,7 +214,7 @@ async def get_players(ctx, requester):
 
         ctx.bot.loop.create_task(update_component_message(join_message, components, update_string))
 
-        return player_count >= 10
+        return player_count >= MAX_PLAYERS
 
     try:
         payload = await ctx.bot.wait_for("component_interaction", check=check, timeout=120)
