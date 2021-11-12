@@ -198,9 +198,9 @@ class KahootCommand(vbu.Cog):
 
             try:
                 if question_type == 'open_ended':
-                    await ctx.bot.wait_for('message', check=open_ended_check, timeout=60)
+                    await ctx.bot.wait_for('message', check=open_ended_check, timeout=120)
                 else:
-                    await ctx.bot.wait_for("component_interaction", check=check, timeout=30)
+                    await ctx.bot.wait_for("component_interaction", check=check, timeout=60)
             except asyncio.TimeoutError:
                 if not answered:
                     strikes += 1

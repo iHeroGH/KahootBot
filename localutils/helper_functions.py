@@ -14,6 +14,8 @@ MATCHER = re.compile(r'[0-9a-zA-Z-]{35,}')
 BASE_DATA_URL = "https://create.kahoot.it/rest/kahoots/{}/card/?includeKahoot=true"
 BASE_KAHOOT_URL = "https://create.kahoot.it/details/{}"
 
+MAX_PLAYERS = 10
+
 def find_id(input_string):
     """
     This function takes a string and returns the id of the quiz
@@ -45,7 +47,10 @@ async def setup_kahoot(ctx, kahoot):
     # Get a message
     if not kahoot:
         await ctx.send("What quiz would you like to play? (Either the link or the long ID from <https://create.kahoot.it/>)")
-        kahoot = await ctx.bot.wait_for("message", timeout=120, check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
+        try:
+            kahoot = await ctx.bot.wait_for("message", timeout=60, check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
+        except asyncio.TimeoutError:
+            await ctx.send("Still there? Timing Out due to inactivity.")
         kahoot = kahoot.content
 
     # Make sure we got an ID
@@ -149,7 +154,7 @@ async def get_players(ctx, requester):
     # Get the players
     players = {}
     # Set up the buttons
-    join_button = discord.ui.Button(label = f"Join 0/5", custom_id = "join",  style=discord.ui.ButtonStyle.success)
+    join_button = discord.ui.Button(label = f"Join 0/{MAX_PLAYERS}", custom_id = "join",  style=discord.ui.ButtonStyle.success)
     continue_button = discord.ui.Button(label = f"Continue", custom_id = "continue",  style=discord.ui.ButtonStyle.secondary)
     cancel_button = discord.ui.Button(label = f"Cancel", custom_id = "cancel",  style=discord.ui.ButtonStyle.danger)
 
@@ -200,7 +205,7 @@ async def get_players(ctx, requester):
         ctx.bot.loop.create_task(p.response.send_message("You have joined the game!", ephemeral=True))
 
         player_count = len(players.keys())
-        join_button.label = f"Join {player_count}/10"
+        join_button.label = f"Join {player_count}/{MAX_PLAYERS}"
 
         if join_message.embeds:
             update_string = '\n'.join([player.mention for player in players.keys()])
@@ -212,7 +217,7 @@ async def get_players(ctx, requester):
         return player_count >= 10
 
     try:
-        payload = await ctx.bot.wait_for("component_interaction", check=check, timeout=60)
+        payload = await ctx.bot.wait_for("component_interaction", check=check, timeout=120)
         if payload.component.custom_id.lower() == "cancel":
             await ctx.send("The game has been cancelled.")
             await disable_components(join_message, components)
