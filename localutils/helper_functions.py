@@ -222,11 +222,7 @@ async def get_players(ctx, requester):
 
     await disable_components(join_message, components,'\n'.join([player.mention for player in players.keys()]))
 
-    if len(players) > 1:
-        return players
-    else:
-        await ctx.send("The game has been cancelled since there are too few players.")
-        return
+    return players
 
 def get_random_message(correct):
     """
