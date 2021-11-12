@@ -14,7 +14,7 @@ MATCHER = re.compile(r'[0-9a-zA-Z-]{35,}')
 BASE_DATA_URL = "https://create.kahoot.it/rest/kahoots/{}/card/?includeKahoot=true"
 BASE_KAHOOT_URL = "https://create.kahoot.it/details/{}"
 
-MAX_PLAYERS = 1
+MAX_PLAYERS = 20
 
 def find_id(input_string):
     """
