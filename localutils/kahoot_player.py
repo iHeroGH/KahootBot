@@ -28,8 +28,8 @@ class KahootGame:
     def add_session(channel_id, password):
         KahootGame.kahoot_sessions[channel_id] = password
 
-    @property
-    def kahoot_sessions():
+    @staticmethod
+    def get_sessions():
         return KahootGame.kahoot_sessions
 
     @staticmethod
