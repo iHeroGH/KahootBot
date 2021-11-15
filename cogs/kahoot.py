@@ -82,7 +82,7 @@ class KahootCommand(vbu.Cog):
         Plays a quiz
         """
          # Make sure they're not already playing
-        if ctx.channel.id in KahootGame.kahoot_sessions:
+        if ctx.channel.id in KahootGame.get_sessions():
             return await ctx.send("A game is already being hosted in this channel!")
 
         # Add the channel to the set of kahoot sessions
