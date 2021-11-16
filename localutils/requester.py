@@ -5,7 +5,8 @@ import humanize
 class KahootRequester(object):
     def __init__(self, quiz_data):
         self.quiz_data = quiz_data
-        self.card_data = self.quiz_data["card"]
+        if self.is_valid:
+            self.card_data = self.quiz_data["card"]
 
     @classmethod
     async def get_quiz_data(cls, quiz_link):
