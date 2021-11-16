@@ -120,7 +120,7 @@ class KahootCommand(vbu.Cog):
         leaderboard = [f"{player.mention} - {score} ({int(score/total_question_count * 100)}%)" for player, score in sorted_player_list]
         leaderboard_string = "\n".join(leaderboard)
 
-        final_message = f"**__Winner__**\n{winner}\n\n"
+        final_message = f"**__Winner__**\n{winner.mention}\n\n"
         final_message += "**__Total Points__**\n" + leaderboard_string
 
         await ctx.send(final_message)
