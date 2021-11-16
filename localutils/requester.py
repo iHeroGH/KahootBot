@@ -5,7 +5,7 @@ import humanize
 class KahootRequester(object):
     def __init__(self, quiz_data):
         self.quiz_data = quiz_data
-        if self.is_valid:
+        if self.is_valid():
             self.card_data = self.quiz_data["card"]
 
     @classmethod
@@ -18,6 +18,19 @@ class KahootRequester(object):
         if "error" in self.quiz_data.keys():
             return False
         return True
+
+    def is_found(self):
+        if not self.is_valid() and self.get_error() == "NOT_FOUND":
+            return False
+        return True
+
+    def is_open(self):
+        if not self.is_valid() and self.get_error() == "FORBIDDEN":
+            return False
+        return True
+
+    def get_error(self):
+        return self.quiz_data["error"]
 
     def get_title(self):
         title = None

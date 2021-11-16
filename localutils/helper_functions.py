@@ -67,11 +67,14 @@ async def setup_kahoot(ctx, kahoot):
     requester = await KahootRequester.get_quiz_data(quiz_link)
 
     # Make sure the game is valid
-    if not requester.is_valid:
+    if not requester.is_found():
         await ctx.send("No game was found with the given ID.")
         return (None, None)
-    if not requester.is_open:
+    if not requester.is_open():
         await ctx.send("Looks like that game is private. Make sure to set the publicity to Public!")
+        return (None, None)
+    if not requester.is_valid():
+        await ctx.send(f"Something went wrong finding the game! Error code: {requester.quiz_data['error']}")
         return (None, None)
 
     return (kahoot_id, requester)
