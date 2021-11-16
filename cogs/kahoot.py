@@ -108,8 +108,7 @@ class KahootCommand(vbu.Cog):
         random.shuffle(shuffle)
 
         kahoot_game = KahootGame(requester, players_dict, shuffle, ctx)
-        kahoot_game.play_game()
-
+        await kahoot_game.play_game()
 
         sorted_player_list = sorted(players_dict.items(), key=lambda x: x[1], reverse=True)
 
