@@ -64,10 +64,11 @@ class KahootGame:
                 if answer[1]:
                     correct_answers.append(answer_button)
                     correct_answer_strings.append(answer_string.lower())
+            random.shuffle(action_rows)
 
             # Put the buttons together
             components = discord.ui.MessageComponents(
-                *random.shuffle(action_rows)
+                *action_rows
             )
 
             # Set up the embed

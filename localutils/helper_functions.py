@@ -74,7 +74,7 @@ async def setup_kahoot(ctx, kahoot):
         await ctx.send("Looks like that game is private. Make sure to set the publicity to Public!")
         return (None, None)
     if not requester.is_valid():
-        await ctx.send(f"Something went wrong finding the game! Error code: {requester.quiz_data['error']}")
+        await ctx.send(f"Something went wrong finding the game! Error code: {requester.get_error()}")
         return (None, None)
 
     return (kahoot_id, requester)
