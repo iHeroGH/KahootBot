@@ -67,10 +67,10 @@ class KahootCommand(vbu.Cog):
         if not password:
             return await ctx.send("Check your DMs for the Kahoot game's password!")
 
-        if ctx.channel.id not in self.kahoot_sessions.keys():
+        if ctx.channel.id not in KahootGame.get_sessions():
             return await ctx.send("There is no Kahoot game in this channel!")
 
-        if password != self.kahoot_sessions[ctx.channel.id]:
+        if password != KahootGame.get_sessions()[ctx.channel.id]:
             return await ctx.send("The password you entered is incorrect!")
 
         await ctx.send("Cancelling the game.")
