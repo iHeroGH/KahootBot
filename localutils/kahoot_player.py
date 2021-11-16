@@ -114,7 +114,7 @@ class KahootGame:
                     return False
                 else:
                     answered.append(message.author)
-                    self.bot.loop.create_task(message.add_reaction("✅"))
+                    self.ctx.bot.loop.create_task(message.add_reaction("✅"))
 
                 if message.content.lower() in correct_answer_strings:
                     correct.append(message.author)
