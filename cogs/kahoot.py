@@ -100,22 +100,30 @@ class KahootCommand(vbu.Cog):
         players_dict = await utils.get_players(ctx, requester)
         if not players_dict:
             return KahootGame.remove_session(ctx.channel.id)
-
+        # Get the questions
         questions = requester.get_questions()
+        if not questions:
+            await ctx.send("No valid questions were found! The game has been cancelled.")
+            return KahootGame.remove_session(ctx.channel.id)
 
         # Set the shuffle
         shuffle = list(questions.keys())
+        total_question_count = len(shuffle)
         random.shuffle(shuffle)
 
         kahoot_game = KahootGame(requester, players_dict, shuffle, ctx)
         await kahoot_game.play_game()
 
         sorted_player_list = sorted(players_dict.items(), key=lambda x: x[1], reverse=True)
+        winner = sorted_player_list[0][0]
 
-        try:
-            await ctx.send(f"**__Winner__**\n{sorted_player_list[0][0].mention}\n\n**__Total Points__**\n" + "\n".join([f"{player.mention} - {score} ({int(score/len(shuffle) * 100)}%)" for player, score in sorted_player_list]))
-        except ZeroDivisionError:
-            pass
+        leaderboard = [f"{player.mention} - {score} ({int(score/total_question_count * 100)}%)" for player, score in sorted_player_list]
+        leaderboard_string = "\n".join(leaderboard)
+
+        final_message = f"**__Winner__**\n{winner}\n\n"
+        final_message += "**__Total Points__**\n" + leaderboard_string
+
+        await ctx.send(final_message)
 
         # Remove the lock
         if ctx.channel.id in KahootGame.get_sessions():

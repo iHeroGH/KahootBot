@@ -7,6 +7,7 @@ from localutils.helper_functions import disable_components
 import localutils as utils
 
 import asyncio
+import random
 
 class KahootGame:
 
@@ -66,7 +67,7 @@ class KahootGame:
 
             # Put the buttons together
             components = discord.ui.MessageComponents(
-                *action_rows
+                *random.shuffle(action_rows)
             )
 
             # Set up the embed
