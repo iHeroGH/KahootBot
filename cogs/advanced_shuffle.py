@@ -8,9 +8,9 @@ class AdvancedShuffle(vbu.Cog):
     @vbu.command(aliases=['addids', 'addid'])
     async def add(self, ctx: vbu.Context, *, ids: str):
         """
-        A command to add multiple IDs to a channel at once. Enter IDs separated by a comma (ID1, ID2, ID3)
+        A command to add multiple IDs to a channel at once. Enter IDs separated by a space (ID1, ID2, ID3)
         """
-        ids = ids.split(",")
+        ids = ids.split(" ")
 
         async with self.bot.database() as db:
             added = False
@@ -34,9 +34,9 @@ class AdvancedShuffle(vbu.Cog):
     @vbu.command(aliases=['removeids', 'removeid'])
     async def remove(self, ctx: vbu.Context, *, ids: str):
         """
-        A command to remove multiple IDs to a channel at once. Enter IDs separated by a comma (ID1, ID2, ID3)
+        A command to remove multiple IDs to a channel at once. Enter IDs separated by a space (ID1, ID2, ID3)
         """
-        ids = ids.split(",")
+        ids = ids.split(" ")
 
         async with self.bot.database() as db:
             for id in ids:
@@ -63,13 +63,13 @@ class AdvancedShuffle(vbu.Cog):
         if not pairs:
             return "No pairs have been created!"
 
-        final_message = "__**Name: ID**__"
+        final_message = "__Name: ID__"
 
         for pair in pairs:
             if not names_only:
-                final_message += f"\n{pair['name']}: {pair['id']}"
+                final_message += f"\n**{pair['name']}**: {pair['id']}"
             else:
-                final_message += f"\n{pair['name']}"
+                final_message += f"\n**{pair['name']}**"
 
         return final_message
 
