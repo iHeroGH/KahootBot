@@ -15,19 +15,16 @@ class KahootRequester(object):
                 return cls(await resp.json())
 
     def is_valid(self):
-        if "error" in self.quiz_data.keys():
-            return False
-        return True
+        return "error" not in self.quiz_data.keys()
 
     def is_found(self):
-        if not self.is_valid() and self.get_error() == "NOT_FOUND":
-            return False
-        return True
+        return self.is_valid() or self.get_error() == "NOT_FOUND"
 
     def is_open(self):
-        if not self.is_valid() and self.get_error() == "FORBIDDEN":
-            return False
-        return True
+        return self.is_valid() or self.get_error() == "FORBIDDEN"
+
+    def found_questions(self):
+        return bool(self.questions)
 
     def get_error(self):
         return self.quiz_data["error"]
@@ -105,7 +102,8 @@ class KahootRequester(object):
 
         return question_count
 
-    def get_questions(self):
+    @property
+    def questions(self):
         questions = {}
 
         if 'questions' not in self.quiz_data['kahoot'].keys():

@@ -73,6 +73,9 @@ async def setup_kahoot(ctx, kahoot):
     if not requester.is_open():
         await ctx.send("Looks like that game is private. Make sure to set the publicity to Public!")
         return (None, None)
+    if not requester.found_questions():
+        await ctx.send("Looks like that game is has no valid questions. The bot currently supports Quiz, T/F, and Open-Ended question types!")
+        return (None, None)
     if not requester.is_valid():
         await ctx.send(f"Something went wrong finding the game! Error code: {requester.get_error()}")
         return (None, None)

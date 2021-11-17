@@ -23,6 +23,9 @@ class AdvancedShuffle(vbu.Cog):
                 curr_name = curr_split[0].strip()
                 curr_id = curr_split[1].strip()
 
+                if not self.id_is_valid(curr_id):
+                    await ctx.send(f"The ID {curr_id} does not correspond to a valid Kahoot")
+
                 try:
                     await db("INSERT INTO name_id_pairs (channel_id, name, id) VALUES ($1, $2, $3)", ctx.channel.id, curr_name, curr_id)
                     added = True
@@ -32,6 +35,9 @@ class AdvancedShuffle(vbu.Cog):
         if added:
             await ctx.send("Added the new values! Check the list by running the `list` command")
 
+
+
+
     @vbu.command(aliases=['getid', 'getids', "listids", "listid"])
     async def list(self, ctx: vbu.Context, names_only = False):
         """
@@ -40,7 +46,6 @@ class AdvancedShuffle(vbu.Cog):
 
         curr_pairs = await self.get_from_db(ctx)
         await ctx.send(self.get_formatted_message(curr_pairs))
-
 
     async def get_from_db(self, ctx):
         async with self.bot.database() as db:

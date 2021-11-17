@@ -17,16 +17,16 @@ class KahootGame:
     OPEN_ENDED_TIME = 120 # The time to wait for a message to be typed
     MAX_STRIKES = 3 # The max amount of strikes permitted before the game is cancelled
 
-    def __init__(self, ctx: vbu.Context, requester: KahootRequester, questions: dict, players_dict: dict):
+    def __init__(self, ctx: vbu.Context, requester: KahootRequester, players_dict: dict):
 
         self.ctx = ctx
         self.requester = requester
-        self.questions = questions
+        self.questions = requester.questions
         self.players_dict = players_dict
 
         self.player_count = len(self.players_dict.keys())
 
-        self.shuffle = list(questions.keys())
+        self.shuffle = list(self.questions.keys())
         random.shuffle(self.shuffle)
 
 
@@ -52,13 +52,8 @@ class KahootGame:
         players_dict = await utils.get_players(ctx, requester)
         if not players_dict:
             return KahootGame.remove_session(ctx.channel.id)
-        # Get the questions
-        questions = requester.get_questions()
-        if not questions:
-            await ctx.send("No valid questions were found! The game has been cancelled.")
-            return KahootGame.remove_session(ctx.channel.id)
 
-        return cls(ctx, requester, questions, players_dict)
+        return cls(ctx, requester, players_dict)
 
     @staticmethod
     def add_session(channel_id, password):
