@@ -20,7 +20,7 @@ class AdvancedShuffle(vbu.Cog):
             added = False
             for pair in pairs:
                 curr_split = pair.split(":")
-                curr_name = curr_split[0].strip
+                curr_name = curr_split[0].strip()
                 curr_id = curr_split[1].strip()
 
                 try:
