@@ -4,6 +4,8 @@ from discord.ext import commands, tasks
 import cogs.localutils.helper_functions as utils
 from cogs.localutils.kahoot_player import KahootGame
 
+import random
+
 class AdvancedShuffle(vbu.Cog):
 
     @tasks.loop(seconds=3)
@@ -35,6 +37,7 @@ class AdvancedShuffle(vbu.Cog):
         Start playing in Frenzy Mode in the current channel
         """
         kahoots = self.get_from_db(ctx)
+        random.shuffle(kahoots)
 
         await ctx.send("Frenzy Mode has been activated in this channel!  Check the list by running the `list` command")
         self.kahoot_task.start(ctx, kahoots)
