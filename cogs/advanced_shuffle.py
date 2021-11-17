@@ -2,19 +2,51 @@ import voxelbotutils as vbu
 from discord.ext import commands, tasks
 
 import cogs.localutils.helper_functions as utils
-
+from cogs.localutils.kahoot_player import KahootGame
 
 class AdvancedShuffle(vbu.Cog):
 
     @tasks.loop(seconds=3)
-    async def start(self, ctx):
-        await self.bot.get_channel(734294453669593108).send("Hello")
+    async def kahoot_task(self, ctx, kahoots):
+        current_kahoot = 0
 
-    @vbu.command()
+        # Create a game and see if we succeeded
+        kahoot_game = await KahootGame.create_game(self.ctx, kahoots[current_kahoot])
+        if not isinstance(kahoot_game, KahootGame):
+            return
+
+        # Play the game
+        await kahoot_game.play_game()
+
+        # Send the final message
+        final_message = kahoot_game.get_final_message()
+        await self.ctx.send(final_message)
+
+        # Remove the lock
+        if ctx.channel.id in KahootGame.get_sessions():
+            return KahootGame.remove_session(ctx.channel.id)
+
+        current_kahoot += 1
+
+    @vbu.command(aliases=['start'])
     @commands.has_permissions(manage_guild=True)
-    async def begin(self):
-        self.start.start()
+    async def begin(self, ctx):
+        """
+        Start playing in Frenzy Mode in the current channel
+        """
+        kahoots = self.get_from_db(ctx)
 
+        await ctx.send("Frenzy Mode has been activated in this channel!  Check the list by running the `list` command")
+        self.kahoot_task.start(ctx, kahoots)
+
+    @vbu.command(aliases=['stop'])
+    @commands.has_permissions(manage_guild=True)
+    async def end(self, ctx):
+        """
+        Stop playing in Frenzy Mode in the current channel
+        """
+        await ctx.send("Ending Frenzy-Mode after the current game has ended!")
+        self.kahoot_task.stop()
 
     @vbu.command(aliases=['addids', 'addid'])
     @commands.has_permissions(manage_guild=True)
