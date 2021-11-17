@@ -36,7 +36,7 @@ class AdvancedShuffle(vbu.Cog):
         """
         Start playing in Frenzy Mode in the current channel
         """
-        kahoots = self.get_from_db(ctx)
+        kahoots = await self.get_from_db(ctx)
         random.shuffle(kahoots)
 
         await ctx.send("Frenzy Mode has been activated in this channel!  Check the list by running the `list` command")
