@@ -60,6 +60,9 @@ class AdvancedShuffle(vbu.Cog):
             return await db("SELECT name, id FROM name_id_pairs WHERE channel_id = $1", ctx.channel.id)
 
     def get_formatted_message(self, pairs = None, names_only = False):
+        if not pairs:
+            return "No pairs have been created!"
+
         final_message = "__**Name: ID**__"
 
         for pair in pairs:
