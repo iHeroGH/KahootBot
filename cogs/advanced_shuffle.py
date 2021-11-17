@@ -8,8 +8,7 @@ class AdvancedShuffle(vbu.Cog):
 
     @tasks.loop(seconds=3)
     async def start(self, ctx):
-        while True:
-            await ctx.send("Hello")
+        await ctx.send("Hello")
 
     @vbu.command()
     @commands.has_permissions(manage_guild=True)
