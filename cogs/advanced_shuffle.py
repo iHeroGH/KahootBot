@@ -1,10 +1,20 @@
 import voxelbotutils as vbu
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 import cogs.localutils.helper_functions as utils
 
 
 class AdvancedShuffle(vbu.Cog):
+
+    @tasks.loop(seconds=3)
+    async def start(self, ctx):
+        await ctx.send("Hello")
+
+    @vbu.command()
+    @commands.has_permissions(manage_guild=True)
+    async def begin(self, ctx):
+        await self.start(ctx)
+
 
     @vbu.command(aliases=['addids', 'addid'])
     @commands.has_permissions(manage_guild=True)
