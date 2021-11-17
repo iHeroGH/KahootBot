@@ -78,7 +78,7 @@ class KahootCommand(vbu.Cog):
         Plays a quiz
         """
         # Create a game and see if we succeeded
-        kahoot_game = KahootGame.create_game(ctx, kahoot)
+        kahoot_game = await KahootGame.create_game(ctx, kahoot)
         if not isinstance(kahoot_game, KahootGame):
             return
 
