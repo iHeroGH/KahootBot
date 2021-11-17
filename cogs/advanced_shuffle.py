@@ -74,7 +74,7 @@ class AdvancedShuffle(vbu.Cog):
 
     def get_formatted_message(self, pairs = None, names_only = False):
         if not pairs:
-            return "No pairs have been created!"
+            return "\nNo pairs have been created!"
 
         final_message = ""
 
