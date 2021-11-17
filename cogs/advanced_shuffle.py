@@ -51,7 +51,7 @@ class AdvancedShuffle(vbu.Cog):
         """
         A command to remove all the IDs at once
         """
-        curr_pairs = await self.get_from_db()
+        curr_pairs = await self.get_from_db(ctx.channel.id)
         formatted_message = self.get_formatted_message(curr_pairs)
 
         async with self.bot.database() as db:
@@ -65,12 +65,12 @@ class AdvancedShuffle(vbu.Cog):
         Lists the current list of name: id pairs. Set names_only to True to only get the names.
         """
 
-        curr_pairs = await self.get_from_db(ctx)
-        await ctx.send("__Name: ID__\n" + self.get_formatted_message(curr_pairs))
+        curr_pairs = await self.get_from_db(ctx.channel.id)
+        await ctx.send("__Name: ID__" + self.get_formatted_message(curr_pairs))
 
-    async def get_from_db(self, ctx):
+    async def get_from_db(self, channel_id):
         async with self.bot.database() as db:
-            return await db("SELECT name, id FROM name_id_pairs WHERE channel_id = $1", ctx.channel.id)
+            return await db("SELECT name, id FROM name_id_pairs WHERE channel_id = $1", channel_id)
 
     def get_formatted_message(self, pairs = None, names_only = False):
         if not pairs:
