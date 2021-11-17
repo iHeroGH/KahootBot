@@ -57,7 +57,7 @@ class AdvancedShuffle(vbu.Cog):
         async with self.bot.database() as db:
             await db("DELETE FROM name_id_pairs WHERE channel_id = $1", ctx.channel.id)
 
-        await ctx.send(f"Removed\n:{formatted_message}")
+        await ctx.send(f"Removed:{formatted_message}")
 
     @vbu.command(aliases=['getid', 'getids', "listids", "listid"])
     async def list(self, ctx: vbu.Context, names_only = False):
