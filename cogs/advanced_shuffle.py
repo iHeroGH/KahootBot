@@ -18,10 +18,15 @@ class AdvancedShuffle(vbu.Cog):
 
         pairs = pairs.split(",")
 
-        if ctx.channel.id in self.temporary_db.keys():
-            self.temporary_db[ctx.channel.id] += pairs
-        else:
-            self.temporary_db[ctx.channel.id] = pairs
+        for pair in pairs:
+            split = pair.split(" ")
+            id = split[0]
+            name = " ".join(split[1:])
+
+            if ctx.channel.id in self.temporary_db.keys():
+                self.temporary_db[ctx.channel.id] += (id, name)
+            else:
+                self.temporary_db[ctx.channel.id] = [(id, name)]
 
         await ctx.send(self.temporary_db)
 
