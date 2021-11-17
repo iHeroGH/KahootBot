@@ -13,7 +13,7 @@ class AdvancedShuffle(vbu.Cog):
     @vbu.command()
     @commands.has_permissions(manage_guild=True)
     async def begin(self, ctx):
-        await self.start(ctx)
+        self.bot.loop.create_task(self.start(ctx))
 
 
     @vbu.command(aliases=['addids', 'addid'])
