@@ -6,7 +6,7 @@ class AdvancedShuffle(vbu.Cog):
     temporary_db = dict()
 
     @vbu.command(aliases=['addids'])
-    async def add(self, ctx: vbu.Context, pairs: str):
+    async def add(self, ctx: vbu.Context, *, pairs: str):
         """
         A (quite advanced) command to add multiple name-ID pairs to a channel at once
 
