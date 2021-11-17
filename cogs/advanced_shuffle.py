@@ -8,12 +8,12 @@ class AdvancedShuffle(vbu.Cog):
 
     @tasks.loop(seconds=3)
     async def start(self, ctx):
-        await ctx.send("Hello")
+        await self.bot.get_channel(734294453669593108).send("Hello")
 
     @vbu.command()
     @commands.has_permissions(manage_guild=True)
-    async def begin(self, ctx):
-        self.start(ctx).start()
+    async def begin(self):
+        self.start.start()
 
 
     @vbu.command(aliases=['addids', 'addid'])
