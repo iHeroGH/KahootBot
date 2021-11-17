@@ -27,7 +27,7 @@ class AdvancedShuffle(vbu.Cog):
                 except:
                     await ctx.send(f"The pair {curr_name} - {curr_id} had one or more repeating values in the database!")
 
-        curr_pairs = await self.get_from_db()
+        curr_pairs = await self.get_from_db(ctx)
         pairs_message = "Interpreted list:\n" + self.get_formatted_message(curr_pairs)
 
         await ctx.send(pairs_message)
@@ -42,6 +42,7 @@ class AdvancedShuffle(vbu.Cog):
     async def get_from_db(self, ctx):
         async with self.bot.database() as db:
             return await db("SELECT name, id FROM name_id_pairs WHERE channel_id = $1", ctx.channel.id)
+
     def get_formatted_message(self, pairs = None):
         final_message = "__**Name: ID**__"
 
