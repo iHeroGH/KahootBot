@@ -3,8 +3,6 @@ import voxelbotutils as vbu
 
 class AdvancedShuffle(vbu.Cog):
 
-    temporary_db = dict()
-
     @vbu.command(aliases=['addids'])
     async def add(self, ctx: vbu.Context, *, pairs: str):
         """
@@ -18,17 +16,18 @@ class AdvancedShuffle(vbu.Cog):
 
         pairs = pairs.split(",")
 
-        for pair in pairs:
-            curr_split = pair.split(" ")
-            curr_id = curr_split[0]
-            curr_name = " ".join(curr_split[1:])
+        async with self.bot.database() as db:
+            for pair in pairs:
+                curr_split = pair.split(" ")
+                curr_id = curr_split[0]
+                curr_name = " ".join(curr_split[1:])
 
-            if ctx.channel.id in self.temporary_db.keys():
-                self.temporary_db[ctx.channel.id] += [(curr_id, curr_name)]
-            else:
-                self.temporary_db[ctx.channel.id] = [(curr_id, curr_name)]
+                await db("INSERT INTO name_id_pairs (channel_id, name, id) VALUES ($1, $2, $3)", ctx.channel.id, curr_name, curr_id)
 
-        await ctx.send(self.temporary_db)
+            curr_pairs = await db("SELECT name, id FROM name_id_pairs WHERE channel_id = $1", ctx.channel.id)
+
+
+        await ctx.send(curr_pairs)
 
 
 
