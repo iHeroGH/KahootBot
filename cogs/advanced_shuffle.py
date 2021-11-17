@@ -25,7 +25,7 @@ class AdvancedShuffle(vbu.Cog):
                 curr_name = curr_split[0].strip()
                 curr_id = curr_split[1].strip()
 
-                if not utils.validate_requester(ctx, curr_id)[1]: # If it ain't valid
+                if not await utils.validate_requester(ctx, curr_id)[1]: # If it ain't valid
                     continue
 
                 try:
