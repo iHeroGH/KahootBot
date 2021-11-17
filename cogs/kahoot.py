@@ -1,12 +1,8 @@
-from localutils.helper_functions import disable_components
-from localutils.kahoot_player import KahootGame
+from .localutils.helper_functions import disable_components
+from .localutils.kahoot_player import KahootGame
 import voxelbotutils as vbu
 import localutils as utils
 
-import discord
-
-import asyncio
-import random
 
 class KahootCommand(vbu.Cog):
 
