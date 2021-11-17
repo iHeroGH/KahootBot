@@ -5,16 +5,11 @@ import cogs.localutils.helper_functions as utils
 
 class AdvancedShuffle(vbu.Cog):
 
-    @vbu.command(aliases=['addids'])
+    @vbu.command(aliases=['addids', 'addid'])
     async def add(self, ctx: vbu.Context, *, ids: str):
         """
-        A (quite advanced) command to add multiple IDs to a channel at once
-
-        Format:
-        /add ID, ID2, ID3, ID4
-
+        A command to add multiple IDs to a channel at once. Enter IDs separated by a comma (ID1, ID2, ID3)
         """
-
         ids = ids.split(",")
 
         async with self.bot.database() as db:
@@ -35,6 +30,21 @@ class AdvancedShuffle(vbu.Cog):
 
         if added:
             await ctx.send("Added the new values! Check the list by running the `list` command")
+
+    @vbu.command(aliases=['removeids', 'removeid'])
+    async def remove(self, ctx: vbu.Context, *, ids: str):
+        """
+        A command to remove multiple IDs to a channel at once. Enter IDs separated by a comma (ID1, ID2, ID3)
+        """
+        ids = ids.split(",")
+
+        async with self.bot.database() as db:
+            for id in ids:
+
+                id = await utils.find_id(id)
+                await db("DELETE FROM name_id_pairs WHERE channel_id = $1 && id = $2", ctx.channel.id, id)
+
+        await ctx.send("Removed the selected values! Check the list by running the `list` command")
 
     @vbu.command(aliases=['getid', 'getids', "listids", "listid"])
     async def list(self, ctx: vbu.Context, names_only = False):
