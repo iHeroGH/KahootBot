@@ -53,7 +53,7 @@ async def setup_kahoot(ctx, kahoot):
             await ctx.send("Still there? Timing Out due to inactivity.")
         kahoot = kahoot.content
 
-    kahoot_id, requester = await validate_requester(kahoot)
+    kahoot_id, requester = await validate_requester(ctx, kahoot)
 
     return (kahoot_id, requester)
 
