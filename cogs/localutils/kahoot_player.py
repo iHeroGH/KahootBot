@@ -73,7 +73,7 @@ class KahootGame:
         KahootGame.kahoot_sessions.pop(channel_id)
 
     def get_total_questions(self):
-        return self.total_question_count
+        return len(self.questions)
 
     async def play_game(self):
         strikes = 0
