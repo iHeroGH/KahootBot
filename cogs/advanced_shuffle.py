@@ -46,6 +46,19 @@ class AdvancedShuffle(vbu.Cog):
 
         await ctx.send("Removed the selected values! Check the list by running the `list` command")
 
+    @vbu.command()
+    async def removeall(self, ctx: vbu.Context):
+        """
+        A command to remove all the IDs at once
+        """
+        curr_pairs = await self.get_from_db()
+        formatted_message = self.get_formatted_message(curr_pairs)
+
+        async with self.bot.database() as db:
+            await db("DELETE FROM name_id_pairs WHERE channel_id = $1", ctx.channel.id)
+
+        await ctx.send(f"Removed\n:{formatted_message}")
+
     @vbu.command(aliases=['getid', 'getids', "listids", "listid"])
     async def list(self, ctx: vbu.Context, names_only = False):
         """
@@ -53,7 +66,7 @@ class AdvancedShuffle(vbu.Cog):
         """
 
         curr_pairs = await self.get_from_db(ctx)
-        await ctx.send(self.get_formatted_message(curr_pairs))
+        await ctx.send("__Name: ID__\n" + self.get_formatted_message(curr_pairs))
 
     async def get_from_db(self, ctx):
         async with self.bot.database() as db:
@@ -63,7 +76,7 @@ class AdvancedShuffle(vbu.Cog):
         if not pairs:
             return "No pairs have been created!"
 
-        final_message = "__Name: ID__"
+        final_message = ""
 
         for pair in pairs:
             if not names_only:
