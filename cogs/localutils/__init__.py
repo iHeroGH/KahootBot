@@ -1,4 +1,4 @@
-from localutils.helper_functions import *
+from helper_functions import *
 
-from localutils.requester import KahootRequester
-from localutils.kahoot_player import KahootGame
+from requester import KahootRequester
+from kahoot_player import KahootGame
