@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS channel_list(
     PRIMARY KEY (guild_id, channel_id, key)
 );
 
+
 CREATE TABLE IF NOT EXISTS name_id_pairs(
     channel_id BIGINT,
     name TEXT,
