@@ -19,14 +19,14 @@ class AdvancedShuffle(vbu.Cog):
         pairs = pairs.split(",")
 
         for pair in pairs:
-            split = pair.split(" ")
-            id = split[0]
-            name = " ".join(split[1:])
+            curr_split = pair.split(" ")
+            curr_id = curr_split[0]
+            curr_name = " ".join(curr_split[1:])
 
             if ctx.channel.id in self.temporary_db.keys():
-                self.temporary_db[ctx.channel.id] += (id, name)
+                self.temporary_db[ctx.channel.id] += [(curr_id, curr_name)]
             else:
-                self.temporary_db[ctx.channel.id] = [(id, name)]
+                self.temporary_db[ctx.channel.id] = [(curr_id, curr_name)]
 
         await ctx.send(self.temporary_db)
 
