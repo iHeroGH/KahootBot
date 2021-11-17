@@ -18,10 +18,10 @@ class KahootRequester(object):
         return "error" not in self.quiz_data.keys()
 
     def is_found(self):
-        return self.is_valid() or self.get_error() == "NOT_FOUND"
+        return self.is_valid() or self.get_error() != "NOT_FOUND"
 
     def is_open(self):
-        return self.is_valid() or self.get_error() == "FORBIDDEN"
+        return self.is_valid() or self.get_error() != "FORBIDDEN"
 
     def found_questions(self):
         return bool(self.questions)
