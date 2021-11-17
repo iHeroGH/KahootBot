@@ -37,6 +37,12 @@ class KahootGame:
         if ctx.channel.id in KahootGame.get_sessions():
             return await ctx.send("A game is already being hosted in this channel!")
 
+
+        # Get the requester
+        _, requester = await utils.setup_kahoot(ctx, kahoot_str)
+        if not requester:
+            return
+
         # Add the channel to the set of kahoot sessions
         password = utils.get_password()
         KahootGame.add_session(ctx.channel.id, password)
@@ -44,10 +50,6 @@ class KahootGame:
         # Send the user the password
         await ctx.author.send(f"You have started a Kahoot game! If you must cancel the game at any point, run `/cancel {password}` in the channel of the game. Enjoy!")
 
-        # Get the requester
-        _, requester = await utils.setup_kahoot(ctx, kahoot_str)
-        if not requester:
-            return KahootGame.remove_session(ctx.channel.id)
         # Get the players
         players_dict = await utils.get_players(ctx, requester)
         if not players_dict:

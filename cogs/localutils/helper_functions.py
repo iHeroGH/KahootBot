@@ -74,16 +74,16 @@ async def validate_requester(ctx, kahoot):
 
     # Make sure the game is valid
     if not requester.is_found():
-        await ctx.send(f"No game was found with the ID {kahoot}.")
+        await ctx.send(f"No game was found with the ID `{kahoot}`.")
         return (None, None)
     if not requester.is_open():
-        await ctx.send(f"Looks like the game with the ID {kahoot} is private. Make sure to set the publicity to Public!")
+        await ctx.send(f"Looks like the game with the ID `{kahoot}` is private. Make sure to set the publicity to Public!")
         return (None, None)
     if not requester.found_questions():
-        await ctx.send(f"Looks like that game with the ID {kahoot} is has no playable questions!")
+        await ctx.send(f"Looks like that game with the ID `{kahoot}` is has no playable questions!")
         return (None, None)
     if not requester.is_valid():
-        await ctx.send(f"Something went wrong finding the game with the ID {kahoot}! Error code: {requester.get_error()}")
+        await ctx.send(f"Something went wrong finding the game with the ID `{kahoot}`! Error code: {requester.get_error()}")
         return (None, None)
 
     return kahoot_id, requester
