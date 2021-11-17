@@ -12,21 +12,26 @@ import random
 class KahootGame:
 
     kahoot_sessions = dict()
+    QUESTION_TIME = 5 # The time to wait between questions
+    QUIZ_TIME = 60 # The time to wait for a button to be pressed
+    OPEN_ENDED_TIME = 120 # The time to wait for a message to be typed
+    MAX_STRIKES = 3 # The max amount of strikes permitted before the game is cancelled
 
-    def __init__(self, requester: KahootRequester, players_dict: dict, shuffle: list, ctx: Context):
-        self.requester = requester
-        self.questions = requester.get_questions()
-
-        self.players_dict = players_dict
-        self.player_count = len(self.players_dict.keys())
-
-        self.shuffle = shuffle
-        self.total_question_count = len(shuffle)
+    def __init__(self, ctx: vbu.Context, requester: KahootRequester, questions: dict, players_dict: dict):
 
         self.ctx = ctx
+        self.requester = requester
+        self.questions = questions
+        self.players_dict = players_dict
+
+        self.player_count = len(self.players_dict.keys())
+
+        self.shuffle = list(questions.keys())
+        random.shuffle(self.shuffle)
+
 
     @classmethod
-    async def create_game(cls, ctx, kahoot_str):
+    async def create_game(cls, ctx: vbu.Context, kahoot_str):
 
         # Make sure they're not already playing
         if ctx.channel.id in KahootGame.get_sessions():
@@ -53,11 +58,7 @@ class KahootGame:
             await ctx.send("No valid questions were found! The game has been cancelled.")
             return KahootGame.remove_session(ctx.channel.id)
 
-        # Set the shuffle
-        shuffle = list(questions.keys())
-        random.shuffle(shuffle)
-
-        return cls(requester, players_dict, shuffle, ctx)
+        return cls(ctx, requester, questions, players_dict)
 
     @staticmethod
     def add_session(channel_id, password):
@@ -163,13 +164,13 @@ class KahootGame:
 
             try:
                 if question_type == 'open_ended':
-                    await self.ctx.bot.wait_for('message', check=open_ended_check, timeout=120)
+                    await self.ctx.bot.wait_for('message', check=open_ended_check, timeout=self.OPEN_ENDED_TIME)
                 else:
-                    await self.ctx.bot.wait_for("component_interaction", check=check, timeout=60)
+                    await self.ctx.bot.wait_for("component_interaction", check=check, timeout=self.QUIZ_TIME)
             except asyncio.TimeoutError:
                 if not answered:
                     strikes += 1
-                if strikes == 3:
+                if strikes == self.MAX_STRIKES:
                     break
                 if question_type != 'open-ended':
                     await disable_components(question_message, components)
@@ -193,7 +194,7 @@ class KahootGame:
             output_message += "\n".join([i.mention for i in correct]) if correct else ""
             await self.ctx.send(output_message)
 
-            await asyncio.sleep(5)
+            await asyncio.sleep(self.QUESTION_TIME)
 
     def get_final_message(self):
         sorted_player_list = sorted(self.players_dict.items(), key=lambda x: x[1], reverse=True)
