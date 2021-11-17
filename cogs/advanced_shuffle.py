@@ -32,7 +32,7 @@ class AdvancedShuffle(vbu.Cog):
 
         await ctx.send(pairs_message)
 
-    @vbu.command(aliases=['getid', 'getids'])
+    @vbu.command(aliases=['getid', 'getids', "listids", "listid"])
     async def list(self, ctx: vbu.Context):
 
         curr_pairs = await self.get_from_db(ctx)
