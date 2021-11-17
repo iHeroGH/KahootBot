@@ -204,3 +204,5 @@ class KahootGame:
 
         final_message = f"**__Winner__**\n{winner.mention}\n\n"
         final_message += "**__Total Points__**\n" + leaderboard_string
+
+        return final_message
