@@ -1,7 +1,6 @@
 import voxelbotutils as vbu
 
-from .localutils.requester import KahootRequester
-import localutils as utils
+import localutils.helper_functions as utils
 
 
 class AdvancedShuffle(vbu.Cog):
