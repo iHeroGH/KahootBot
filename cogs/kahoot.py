@@ -81,48 +81,16 @@ class KahootCommand(vbu.Cog):
         """
         Plays a quiz
         """
-         # Make sure they're not already playing
-        if ctx.channel.id in KahootGame.get_sessions():
-            return await ctx.send("A game is already being hosted in this channel!")
+        # Create a game and see if we succeeded
+        kahoot_game = KahootGame.create_game(ctx, kahoot)
+        if not isinstance(kahoot_game, KahootGame):
+            return
 
-        # Add the channel to the set of kahoot sessions
-        password = utils.get_password()
-        KahootGame.add_session(ctx.channel.id, password)
-
-        # Send the user the password
-        await ctx.author.send(f"You have started a Kahoot game! If you must cancel the game at any point, run `/cancel {password}` in the channel of the game. Enjoy!")
-
-        # Get the requester
-        _, requester = await utils.setup_kahoot(ctx, kahoot)
-        if not requester:
-            return KahootGame.remove_session(ctx.channel.id)
-        # Get the players
-        players_dict = await utils.get_players(ctx, requester)
-        if not players_dict:
-            return KahootGame.remove_session(ctx.channel.id)
-        # Get the questions
-        questions = requester.get_questions()
-        if not questions:
-            await ctx.send("No valid questions were found! The game has been cancelled.")
-            return KahootGame.remove_session(ctx.channel.id)
-
-        # Set the shuffle
-        shuffle = list(questions.keys())
-        total_question_count = len(shuffle)
-        random.shuffle(shuffle)
-
-        kahoot_game = KahootGame(requester, players_dict, shuffle, ctx)
+        # Play the game
         await kahoot_game.play_game()
 
-        sorted_player_list = sorted(players_dict.items(), key=lambda x: x[1], reverse=True)
-        winner = sorted_player_list[0][0]
-
-        leaderboard = [f"{player.mention} - {score} ({int(score/total_question_count * 100)}%)" for player, score in sorted_player_list]
-        leaderboard_string = "\n".join(leaderboard)
-
-        final_message = f"**__Winner__**\n{winner.mention}\n\n"
-        final_message += "**__Total Points__**\n" + leaderboard_string
-
+        # Send the final message
+        final_message = kahoot_game.get_final_message()
         await ctx.send(final_message)
 
         # Remove the lock

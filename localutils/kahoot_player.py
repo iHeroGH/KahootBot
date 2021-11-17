@@ -25,6 +25,40 @@ class KahootGame:
 
         self.ctx = ctx
 
+    @classmethod
+    async def create_game(cls, ctx, kahoot_str):
+
+        # Make sure they're not already playing
+        if ctx.channel.id in KahootGame.get_sessions():
+            return await ctx.send("A game is already being hosted in this channel!")
+
+        # Add the channel to the set of kahoot sessions
+        password = utils.get_password()
+        KahootGame.add_session(ctx.channel.id, password)
+
+        # Send the user the password
+        await ctx.author.send(f"You have started a Kahoot game! If you must cancel the game at any point, run `/cancel {password}` in the channel of the game. Enjoy!")
+
+        # Get the requester
+        _, requester = await utils.setup_kahoot(ctx, kahoot_str)
+        if not requester:
+            return KahootGame.remove_session(ctx.channel.id)
+        # Get the players
+        players_dict = await utils.get_players(ctx, requester)
+        if not players_dict:
+            return KahootGame.remove_session(ctx.channel.id)
+        # Get the questions
+        questions = requester.get_questions()
+        if not questions:
+            await ctx.send("No valid questions were found! The game has been cancelled.")
+            return KahootGame.remove_session(ctx.channel.id)
+
+        # Set the shuffle
+        shuffle = list(questions.keys())
+        random.shuffle(shuffle)
+
+        return cls(requester, players_dict, shuffle, ctx)
+
     @staticmethod
     def add_session(channel_id, password):
         KahootGame.kahoot_sessions[channel_id] = password
@@ -36,6 +70,9 @@ class KahootGame:
     @staticmethod
     def remove_session(channel_id):
         KahootGame.kahoot_sessions.pop(channel_id)
+
+    def get_total_questions(self):
+        return self.total_question_count
 
     async def play_game(self):
         strikes = 0
@@ -157,3 +194,13 @@ class KahootGame:
             await self.ctx.send(output_message)
 
             await asyncio.sleep(5)
+
+    def get_final_message(self):
+        sorted_player_list = sorted(self.players_dict.items(), key=lambda x: x[1], reverse=True)
+        winner = sorted_player_list[0][0]
+
+        leaderboard = [f"{player.mention} - {score} ({int(score/self.total_question_count * 100)}%)" for player, score in sorted_player_list]
+        leaderboard_string = "\n".join(leaderboard)
+
+        final_message = f"**__Winner__**\n{winner.mention}\n\n"
+        final_message += "**__Total Points__**\n" + leaderboard_string
