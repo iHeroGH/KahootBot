@@ -21,10 +21,10 @@ class AdvancedShuffle(vbu.Cog):
             added = False
             for id in ids:
 
-                if not (_, req := await utils.validate_requester(ctx, id))[1]: # If it ain't valid
+                if not (req := await utils.validate_requester(ctx, id))[1]: # If it ain't valid
                     continue
 
-                curr_name = req.get_title()
+                curr_name = req[1].get_title()
 
                 try:
                     await db("INSERT INTO name_id_pairs (channel_id, name, id) VALUES ($1, $2, $3)", ctx.channel.id, curr_name, id)
