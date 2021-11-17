@@ -63,7 +63,7 @@ async def validate_requester(ctx, kahoot):
     try:
         kahoot_id = find_id(kahoot)
     except TypeError:
-        await ctx.send(f"A valid ID was not found in {kahoot}.")
+        await ctx.send(f"A valid ID was not found in `{kahoot}`.")
         return (None, None)
 
     # Get the quiz link
