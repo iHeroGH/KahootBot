@@ -42,14 +42,14 @@ class AdvancedShuffle(vbu.Cog):
         await ctx.send("Frenzy Mode has been activated in this channel!  Check the list by running the `list` command")
         self.kahoot_task.start(ctx, kahoots)
 
-    # @vbu.command(aliases=['stop'])
-    # @commands.has_permissions(manage_guild=True)
-    # async def end(self, ctx):
-    #     """
-    #     Stop playing in Frenzy Mode in the current channel
-    #     """
-    #     await ctx.send("Ending Frenzy-Mode after the current game has ended!")
-    #     self.kahoot_task.stop()
+    @vbu.command(aliases=['stop'])
+    @commands.has_permissions(manage_guild=True)
+    async def endfrenzy(self, ctx):
+        """
+        Stop playing in Frenzy Mode in the current channel
+        """
+        await ctx.send("Ending Frenzy-Mode after the current game has ended!")
+        self.kahoot_task.stop()
 
     @vbu.command(aliases=['addids', 'addid'])
     @commands.has_permissions(manage_guild=True)
