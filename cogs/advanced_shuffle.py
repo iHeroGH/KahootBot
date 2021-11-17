@@ -1,4 +1,5 @@
 import voxelbotutils as vbu
+from discord.ext import commands
 
 import cogs.localutils.helper_functions as utils
 
@@ -6,6 +7,7 @@ import cogs.localutils.helper_functions as utils
 class AdvancedShuffle(vbu.Cog):
 
     @vbu.command(aliases=['addids', 'addid'])
+    @commands.has_permissions(manage_guild=True)
     async def add(self, ctx: vbu.Context, *, ids: str):
         """
         A command to add multiple IDs to a channel at once. Enter IDs separated by a space (ID1, ID2, ID3)
@@ -32,6 +34,7 @@ class AdvancedShuffle(vbu.Cog):
             await ctx.send("Added the new values! Check the list by running the `list` command")
 
     @vbu.command(aliases=['removeids', 'removeid'])
+    @commands.has_permissions(manage_guild=True)
     async def remove(self, ctx: vbu.Context, *, ids: str):
         """
         A command to remove multiple IDs to a channel at once. Enter IDs separated by a space (ID1, ID2, ID3)
@@ -47,6 +50,7 @@ class AdvancedShuffle(vbu.Cog):
         await ctx.send("Removed the selected values! Check the list by running the `list` command")
 
     @vbu.command()
+    @commands.has_permissions(manage_guild=True)
     async def removeall(self, ctx: vbu.Context):
         """
         A command to remove all the IDs at once
@@ -60,6 +64,7 @@ class AdvancedShuffle(vbu.Cog):
         await ctx.send(f"Removed:{formatted_message}")
 
     @vbu.command(aliases=['getid', 'getids', "listids", "listid"])
+    @commands.has_permissions(manage_guild=True)
     async def list(self, ctx: vbu.Context, names_only = False):
         """
         Lists the current list of name: id pairs. Set names_only to True to only get the names.
