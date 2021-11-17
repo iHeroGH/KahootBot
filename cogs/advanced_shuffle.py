@@ -24,6 +24,7 @@ class AdvancedShuffle(vbu.Cog):
                 if not (req := await utils.validate_requester(ctx, id))[1]: # If it ain't valid
                     continue
 
+                id = req[0]
                 curr_name = req[1].get_title()
 
                 try:
