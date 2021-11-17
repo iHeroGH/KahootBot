@@ -33,7 +33,7 @@ class AdvancedShuffle(vbu.Cog):
 
         await ctx.send(pairs_message)
 
-    def get_formatted_message(pairs):
+    def get_formatted_message(self, pairs):
         final_message = "__**Name: ID**__"
 
         for pair in pairs:
