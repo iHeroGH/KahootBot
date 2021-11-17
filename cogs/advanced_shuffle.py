@@ -1,6 +1,6 @@
 import voxelbotutils as vbu
 
-import localutils.helper_functions as utils
+import cogs.localutils.helper_functions as utils
 
 
 class AdvancedShuffle(vbu.Cog):
