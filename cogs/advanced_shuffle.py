@@ -33,7 +33,10 @@ class AdvancedShuffle(vbu.Cog):
             await ctx.send("Added the new values! Check the list by running the `list` command")
 
     @vbu.command(aliases=['getid', 'getids', "listids", "listid"])
-    async def list(self, ctx: vbu.Context):
+    async def list(self, ctx: vbu.Context, names_only = False):
+        """
+        Lists the current list of name: id pairs. Set names_only to True to only get the names.
+        """
 
         curr_pairs = await self.get_from_db(ctx)
         await ctx.send(self.get_formatted_message(curr_pairs))
@@ -43,11 +46,14 @@ class AdvancedShuffle(vbu.Cog):
         async with self.bot.database() as db:
             return await db("SELECT name, id FROM name_id_pairs WHERE channel_id = $1", ctx.channel.id)
 
-    def get_formatted_message(self, pairs = None):
+    def get_formatted_message(self, pairs = None, names_only = False):
         final_message = "__**Name: ID**__"
 
         for pair in pairs:
-            final_message += f"\n{pair['name']}: {pair['id']}"
+            if not names_only:
+                final_message += f"\n{pair['name']}: {pair['id']}"
+            else:
+                final_message += f"\n{pair['name']}"
 
         return final_message
 
