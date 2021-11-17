@@ -18,7 +18,7 @@ class AdvancedShuffle(vbu.Cog):
 
         async with self.bot.database() as db:
             for pair in pairs:
-                curr_split = pair.split(" ")
+                curr_split = pair.strip().split(" ")
                 curr_id = curr_split[0]
                 curr_name = " ".join(curr_split[1:])
 
