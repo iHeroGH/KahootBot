@@ -53,11 +53,17 @@ async def setup_kahoot(ctx, kahoot):
             await ctx.send("Still there? Timing Out due to inactivity.")
         kahoot = kahoot.content
 
+    kahoot_id, requester = await validate_requester(kahoot)
+
+    return (kahoot_id, requester)
+
+async def validate_requester(ctx, kahoot):
+
     # Make sure we got an ID
     try:
         kahoot_id = find_id(kahoot)
     except TypeError:
-        await ctx.send("I couldn't find a valid ID in your message.")
+        await ctx.send(f"A valid ID was not found in {kahoot}.")
         return (None, None)
 
     # Get the quiz link
@@ -68,19 +74,19 @@ async def setup_kahoot(ctx, kahoot):
 
     # Make sure the game is valid
     if not requester.is_found():
-        await ctx.send("No game was found with the given ID.")
+        await ctx.send(f"No game was found with the ID {kahoot}.")
         return (None, None)
     if not requester.is_open():
-        await ctx.send("Looks like that game is private. Make sure to set the publicity to Public!")
+        await ctx.send(f"Looks like the game with the ID {kahoot} is private. Make sure to set the publicity to Public!")
         return (None, None)
     if not requester.found_questions():
-        await ctx.send("Looks like that game is has no valid questions. The bot currently supports Quiz, T/F, and Open-Ended question types!")
+        await ctx.send(f"Looks like that game with the ID {kahoot} is has no playable questions!")
         return (None, None)
     if not requester.is_valid():
-        await ctx.send(f"Something went wrong finding the game! Error code: {requester.get_error()}")
+        await ctx.send(f"Something went wrong finding the game with the ID {kahoot}! Error code: {requester.get_error()}")
         return (None, None)
 
-    return (kahoot_id, requester)
+    return kahoot_id, requester
 
 def get_date(unix_time):
     """

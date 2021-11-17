@@ -1,5 +1,8 @@
 import voxelbotutils as vbu
 
+from .localutils.requester import KahootRequester
+import localutils as utils
+
 
 class AdvancedShuffle(vbu.Cog):
 
@@ -23,8 +26,8 @@ class AdvancedShuffle(vbu.Cog):
                 curr_name = curr_split[0].strip()
                 curr_id = curr_split[1].strip()
 
-                if not self.id_is_valid(curr_id):
-                    await ctx.send(f"The ID {curr_id} does not correspond to a valid Kahoot")
+                if not utils.validate_requester(curr_id)[1]: # If it ain't valid
+                    continue
 
                 try:
                     await db("INSERT INTO name_id_pairs (channel_id, name, id) VALUES ($1, $2, $3)", ctx.channel.id, curr_name, curr_id)
@@ -34,9 +37,6 @@ class AdvancedShuffle(vbu.Cog):
 
         if added:
             await ctx.send("Added the new values! Check the list by running the `list` command")
-
-
-
 
     @vbu.command(aliases=['getid', 'getids', "listids", "listid"])
     async def list(self, ctx: vbu.Context, names_only = False):
