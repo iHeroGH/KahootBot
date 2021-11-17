@@ -2,9 +2,9 @@ import discord
 from discord.ext.commands.context import Context
 import voxelbotutils as vbu
 
-from localutils.requester import KahootRequester
-from localutils.helper_functions import disable_components
-import localutils as utils
+from cogs.localutils.requester import KahootRequester
+from cogs.localutils.helper_functions import disable_components
+import cogs.localutils as utils
 
 import asyncio
 import random

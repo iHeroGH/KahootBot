@@ -7,7 +7,7 @@ import string
 
 import discord
 
-from localutils.requester import KahootRequester
+from cogs.localutils.requester import KahootRequester
 
 MATCHER = re.compile(r'[0-9a-zA-Z-]{35,}')
 
