@@ -89,7 +89,11 @@ class AdvancedShuffle(vbu.Cog):
         async with self.bot.database() as db:
             for id in ids:
 
-                id = utils.find_id(id)
+                if not (req := await utils.validate_requester(ctx, id))[1]: # If it ain't valid
+                    continue
+
+                id = req[0]
+
                 await db("DELETE FROM name_id_pairs WHERE channel_id = $1 AND id = $2", ctx.channel.id, id)
 
         await ctx.send("Removed the selected values! Check the list by running the `list` command")
