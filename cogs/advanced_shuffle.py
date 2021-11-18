@@ -23,6 +23,12 @@ class AdvancedShuffle(vbu.Cog):
         final_message = kahoot_game.get_final_message()
         await ctx.send(final_message)
 
+        # Remove the lock
+        if ctx.channel.id in KahootGame.get_sessions():
+            KahootGame.remove_session(ctx.channel.id)
+
+        await ctx.send("start timer")
+
     @vbu.command(aliases=['start', 'begin'])
     @commands.has_permissions(manage_guild=True)
     async def beginfrenzy(self, ctx: vbu.Context):
@@ -42,10 +48,6 @@ class AdvancedShuffle(vbu.Cog):
         """
         await ctx.send("Ending Frenzy-Mode after the current game has ended!")
         self.kahoot_task.stop()
-
-        # Remove the lock
-        if ctx.channel.id in KahootGame.get_sessions():
-            return KahootGame.remove_session(ctx.channel.id)
 
     @vbu.command(aliases=['addids', 'addid'])
     @commands.has_permissions(manage_guild=True)
