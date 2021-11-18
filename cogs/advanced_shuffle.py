@@ -40,6 +40,7 @@ class AdvancedShuffle(vbu.Cog):
             KahootGame.remove_session(channel.id)
 
         await asyncio.sleep(self.MINUTE_DELAY * 60)
+        await self.kahoot_task(channel_id, kahoots)
 
     @vbu.Cog.listener()
     async def on_ready(self):
