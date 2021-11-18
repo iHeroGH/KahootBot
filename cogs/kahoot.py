@@ -1,6 +1,6 @@
 from .localutils.kahoot_player import KahootGame
 import voxelbotutils as vbu
-import localutils as utils
+import cogs.localutils as utils
 
 
 class KahootCommand(vbu.Cog):
