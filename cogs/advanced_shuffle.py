@@ -62,7 +62,7 @@ class AdvancedShuffle(vbu.Cog):
         async with self.bot.database() as db:
             await db("UPDATE frenzy_activated SET activated = $2 WHERE channel_id = $1", channel_id, True)
 
-        self.activated_channels.update(channel_id)
+        self.activated_channels.add(channel_id)
 
         kahoots = await self.get_from_db(channel_id, only_id=True)
         await self.kahoot_task(channel_id, kahoots)
