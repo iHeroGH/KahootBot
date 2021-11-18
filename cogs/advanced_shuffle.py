@@ -25,10 +25,11 @@ class AdvancedShuffle(vbu.Cog):
         # Try creating a game until it works
         kahoot_game = await KahootGame.create_game(self.bot, channel, None, random.choice(kahoots))
         while not isinstance(kahoot_game, KahootGame):
+            print("Failed to create game, trying again")
             kahoot_game = await KahootGame.create_game(self.bot, channel, None, random.choice(kahoots))
 
         # Play the game
-        await kahoot_game.play_game(abstract=True)
+        await kahoot_game.play_game()
 
         # Send the final message
         final_message = kahoot_game.get_final_message()
@@ -61,13 +62,12 @@ class AdvancedShuffle(vbu.Cog):
 
         async with self.bot.database() as db:
             await db("UPDATE frenzy_activated SET activated = $2 WHERE channel_id = $1", channel_id, True)
-
         self.activated_channels.add(channel_id)
+
+        await ctx.send("Frenzy Mode has been activated in this channel! Check the list by running the `list` command")
 
         kahoots = await self.get_from_db(channel_id, only_id=True)
         await self.kahoot_task(channel_id, kahoots)
-
-        await ctx.send("Frenzy Mode has been activated in this channel!  Check the list by running the `list` command")
 
     @vbu.command(aliases=['stop'])
     @commands.has_permissions(manage_guild=True)
