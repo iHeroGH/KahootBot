@@ -8,7 +8,7 @@ import random
 
 class AdvancedShuffle(vbu.Cog):
 
-    @tasks.loop(seconds=10)
+    @tasks.loop(seconds=30)
     async def kahoot_task(self, ctx: vbu.Context, kahoots):
 
         # Create a game and see if we succeeded
@@ -22,10 +22,6 @@ class AdvancedShuffle(vbu.Cog):
         # Send the final message
         final_message = kahoot_game.get_final_message()
         await ctx.send(final_message)
-
-        # Remove the lock
-        if ctx.channel.id in KahootGame.get_sessions():
-            return KahootGame.remove_session(ctx.channel.id)
 
     @vbu.command(aliases=['start', 'begin'])
     @commands.has_permissions(manage_guild=True)
@@ -46,6 +42,10 @@ class AdvancedShuffle(vbu.Cog):
         """
         await ctx.send("Ending Frenzy-Mode after the current game has ended!")
         self.kahoot_task.stop()
+
+        # Remove the lock
+        if ctx.channel.id in KahootGame.get_sessions():
+            return KahootGame.remove_session(ctx.channel.id)
 
     @vbu.command(aliases=['addids', 'addid'])
     @commands.has_permissions(manage_guild=True)
