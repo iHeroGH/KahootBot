@@ -1,18 +1,24 @@
 import voxelbotutils as vbu
+import discord
 from discord.ext import commands, tasks
 
 import cogs.localutils.helper_functions as utils
 from cogs.localutils.kahoot_player import KahootGame
 
 import random
+import asyncio
 
 class AdvancedShuffle(vbu.Cog):
 
-    @tasks.loop(seconds=30)
-    async def kahoot_task(self, ctx: vbu.Context, kahoots):
+    MINUTE_DELAY = 3
+    activated_channels = []
+
+    async def kahoot_task(self, channel_id, kahoots):
+
+        channel = self.bot.get_channel(channel_id)
 
         # Create a game and see if we succeeded
-        kahoot_game = await KahootGame.create_game(ctx, random.choice(kahoots))
+        kahoot_game = await KahootGame.create_game(self.bot, channel, None, random.choice(kahoots))
         if not isinstance(kahoot_game, KahootGame):
             return
 
@@ -21,13 +27,24 @@ class AdvancedShuffle(vbu.Cog):
 
         # Send the final message
         final_message = kahoot_game.get_final_message()
-        await ctx.send(final_message)
+        await channel.send(final_message)
 
         # Remove the lock
-        if ctx.channel.id in KahootGame.get_sessions():
-            KahootGame.remove_session(ctx.channel.id)
+        if channel.id in KahootGame.get_sessions():
+            KahootGame.remove_session(channel.id)
 
-        await ctx.send("start timer")
+        await asyncio.sleep(self.MINUTE_DELAY * 60)
+
+    @vbu.Cog.listner()
+    async def on_ready(self):
+        async with self.bot.database() as db:
+            activated_rows = await db("SELECT channel_id FROM frenzy_activated WHERE activated = $1", True)
+
+        self.activated_channels = [i['channel_id'] for i in activated_rows]
+
+        for channel_id in self.activated_channels:
+            curr_kahoots = await self.get_from_db(channel_id, only_id=True)
+            await self.kahoot_task(channel_id, curr_kahoots)
 
     @vbu.command(aliases=['start', 'begin'])
     @commands.has_permissions(manage_guild=True)
@@ -35,10 +52,14 @@ class AdvancedShuffle(vbu.Cog):
         """
         Start playing in Frenzy Mode in the current channel
         """
-        kahoots = [i['id'] for i in await self.get_from_db(ctx.channel.id)]
+        async with self.bot.database() as db:
+            await db("UPDATE frenzy_activated DO SET activated = $2 WHERE channel_id = $1", ctx.channel.id, True)
+
+        kahoots = await self.get_from_db(ctx.channel.id, only_id=True)
+
+        self.activated_channels[ctx.channel.id] = ctx, kahoots
 
         await ctx.send("Frenzy Mode has been activated in this channel!  Check the list by running the `list` command")
-        self.kahoot_task.start(ctx, kahoots)
 
     @vbu.command(aliases=['stop'])
     @commands.has_permissions(manage_guild=True)
@@ -46,8 +67,12 @@ class AdvancedShuffle(vbu.Cog):
         """
         Stop playing in Frenzy Mode in the current channel
         """
+        async with self.bot.database() as db:
+            await db("UPDATE frenzy_activated DO SET activated = $2 WHERE channel_id = $1", ctx.channel.id, False)
+
+        self.activated_channels[ctx.channel.id] = None
+
         await ctx.send("Ending Frenzy-Mode after the current game has ended!")
-        self.kahoot_task.stop()
 
     @vbu.command(aliases=['addids', 'addid'])
     @commands.has_permissions(manage_guild=True)
@@ -121,9 +146,12 @@ class AdvancedShuffle(vbu.Cog):
         await ctx.send("__Name: ID__" + self.get_formatted_message(curr_pairs))
 
 
-    async def get_from_db(self, channel_id):
+    async def get_from_db(self, channel_id, only_id=False):
         async with self.bot.database() as db:
-            return await db("SELECT name, id FROM name_id_pairs WHERE channel_id = $1", channel_id)
+            curr_pairs = await db("SELECT * FROM name_id_pairs WHERE channel_id = $1", channel_id)
+            if only_id:
+                curr_pairs = [i['id'] for i in curr_pairs]
+            return curr_pairs
 
     def get_formatted_message(self, pairs = None, names_only = False):
         if not pairs:

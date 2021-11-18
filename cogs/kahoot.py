@@ -14,7 +14,7 @@ class KahootCommand(vbu.Cog):
         Gets the data for a given kahoot.
         """
 
-        kahoot_id, requester = await utils.setup_kahoot(ctx, kahoot)
+        kahoot_id, requester = await utils.setup_kahoot(ctx.channel, ctx.author, kahoot)
 
         if not requester:
             return

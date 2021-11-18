@@ -43,28 +43,28 @@ def get_quiz_link(kahoot_id):
 
     return BASE_KAHOOT_URL.format(kahoot_id)
 
-async def setup_kahoot(ctx, kahoot):
+async def setup_kahoot(channel: discord.TextChannel, author: discord.User, kahoot):
     # Get a message
     if not kahoot:
-        await ctx.send("What quiz would you like to play? (Either the link or the long ID from <https://create.kahoot.it/>)")
+        await channel.send("What quiz would you like to play? (Either the link or the long ID from <https://create.kahoot.it/>)")
         try:
-            kahoot = await ctx.bot.wait_for("message", timeout=60, check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
+            kahoot = await channel.bot.wait_for("message", timeout=60, check=lambda m: m.author == author and m.channel == channel)
         except asyncio.TimeoutError:
-            await ctx.send("Still there? Timing Out due to inactivity.")
+            await channel.send("Still there? Timing Out due to inactivity.")
             return (None, None)
         kahoot = kahoot.content
 
-    kahoot_id, requester = await validate_requester(ctx, kahoot)
+    kahoot_id, requester = await validate_requester(channel, kahoot)
 
     return (kahoot_id, requester)
 
-async def validate_requester(ctx, kahoot):
+async def validate_requester(channel, kahoot):
 
     # Make sure we got an ID
     try:
         kahoot_id = find_id(kahoot)
     except TypeError:
-        await ctx.send(f"A valid ID was not found in `{kahoot}`.")
+        await channel.send(f"A valid ID was not found in `{kahoot}`.")
         return (None, None)
 
     # Get the quiz link
@@ -75,16 +75,16 @@ async def validate_requester(ctx, kahoot):
 
     # Make sure the game is valid
     if not requester.is_found():
-        await ctx.send(f"No game was found with the ID `{kahoot}`.")
+        await channel.send(f"No game was found with the ID `{kahoot}`.")
         return (None, None)
     if not requester.is_open():
-        await ctx.send(f"Looks like the game with the ID `{kahoot}` is private. Make sure to set the publicity to Public!")
+        await channel.send(f"Looks like the game with the ID `{kahoot}` is private. Make sure to set the publicity to Public!")
         return (None, None)
     if not requester.found_questions():
-        await ctx.send(f"Looks like that game with the ID `{kahoot}` is has no playable questions!")
+        await channel.send(f"Looks like that game with the ID `{kahoot}` is has no playable questions!")
         return (None, None)
     if not requester.is_valid():
-        await ctx.send(f"Something went wrong finding the game with the ID `{kahoot}`! Error code: {requester.get_error()}")
+        await channel.send(f"Something went wrong finding the game with the ID `{kahoot}`! Error code: {requester.get_error()}")
         return (None, None)
 
     return kahoot_id, requester
@@ -163,7 +163,7 @@ async def disable_components(message, components, message_content=None):
     # Update the message
     await update_component_message(message, components, message_content)
 
-async def get_players(ctx, requester):
+async def get_players(bot, channel, author, requester):
     """
     This function gets the players for a game
     """
@@ -188,7 +188,7 @@ async def get_players(ctx, requester):
 
     embed.add_field(name="Players", value="No one has joined yet!")
 
-    join_message = await ctx.send(embed=embed, components=components)
+    join_message = await channel.send(embed=embed, components=components)
 
     def check(p):
 
@@ -196,29 +196,29 @@ async def get_players(ctx, requester):
             return False
 
         if p.component.custom_id.lower() == "cancel":
-            ctx.bot.loop.create_task(p.response.defer_update())
+            bot.loop.create_task(p.response.defer_update())
 
-            if p.user == ctx.author:
+            if p.user == author:
                 return True
 
             return False
 
         if p.component.custom_id.lower() == "continue":
-            ctx.bot.loop.create_task(p.response.defer_update())
+            bot.loop.create_task(p.response.defer_update())
 
-            if p.user == ctx.author:
+            if p.user == author:
                 return True
 
             return False
 
         if p.user in players.keys():
-            ctx.bot.loop.create_task(p.response.defer_update())
+            bot.loop.create_task(p.response.defer_update())
 
             return False
 
         players[p.user] = 0
 
-        ctx.bot.loop.create_task(p.response.send_message("You have joined the game!", ephemeral=True))
+        bot.loop.create_task(p.response.send_message("You have joined the game!", ephemeral=True))
 
         player_count = len(players.keys())
         join_button.label = f"Join {player_count}/{MAX_PLAYERS}"
@@ -228,14 +228,14 @@ async def get_players(ctx, requester):
         else:
             update_string = "Press \"Join\" to join the game!\n**Players**:\n" + '\n'.join([player.mention for player, _ in players])
 
-        ctx.bot.loop.create_task(update_component_message(join_message, components, update_string))
+        bot.loop.create_task(update_component_message(join_message, components, update_string))
 
         return player_count >= MAX_PLAYERS
 
     try:
-        payload = await ctx.bot.wait_for("component_interaction", check=check, timeout=120)
+        payload = await bot.wait_for("component_interaction", check=check, timeout=120)
         if payload.component.custom_id.lower() == "cancel":
-            await ctx.send("The game has been cancelled.")
+            await channel.send("The game has been cancelled.")
             await disable_components(join_message, components)
             return
     except asyncio.TimeoutError:

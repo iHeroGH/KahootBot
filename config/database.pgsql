@@ -26,6 +26,11 @@ CREATE TABLE IF NOT EXISTS channel_list(
     PRIMARY KEY (guild_id, channel_id, key)
 );
 
+CREATE TABLE IF NOT EXISTS frenzy_activated(
+    channel_id BIGINT,
+    activated BOOLEAN DEFAULT FALSE,
+    PRIMARY KEY (channel_id, activated)
+);
 
 CREATE TABLE IF NOT EXISTS name_id_pairs(
     channel_id BIGINT,

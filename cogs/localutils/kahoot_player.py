@@ -17,9 +17,10 @@ class KahootGame:
     OPEN_ENDED_TIME = 120 # The time to wait for a message to be typed
     MAX_STRIKES = 3 # The max amount of strikes permitted before the game is cancelled
 
-    def __init__(self, ctx: vbu.Context, requester: KahootRequester, players_dict: dict):
+    def __init__(self, channel_id: int, requester: KahootRequester, players_dict: dict, author = None):
 
-        self.ctx = ctx
+        self.channel_id = channel_id
+        self.author = author
         self.requester = requester
         self.questions = requester.questions
         self.players_dict = players_dict
@@ -31,30 +32,31 @@ class KahootGame:
 
 
     @classmethod
-    async def create_game(cls, ctx: vbu.Context, kahoot_str):
+    async def create_game(cls, bot, channel: discord.TextChannel, author:discord.User, kahoot_str: str):
 
         # Make sure they're not already playing
-        if ctx.channel.id in KahootGame.get_sessions():
-            return await ctx.send("A game is already being hosted in this channel!")
+        if channel.id in KahootGame.get_sessions():
+            return await channel.send("A game is already being hosted in this channel!")
 
         # Get the requester
-        _, requester = await utils.setup_kahoot(ctx, kahoot_str)
+        _, requester = await utils.setup_kahoot(channel, author, kahoot_str)
         if not requester:
             return
 
         # Add the channel to the set of kahoot sessions
         password = utils.get_password()
-        KahootGame.add_session(ctx.channel.id, password)
+        KahootGame.add_session(channel.id, password)
 
         # Send the user the password
-        await ctx.author.send(f"You have started a Kahoot game! If you must cancel the game at any point, run `/cancel {password}` in the channel of the game. Enjoy!")
+        if author:
+            await author.send(f"You have started a Kahoot game! If you must cancel the game at any point, run `/cancel {password}` in the channel of the game. Enjoy!")
 
         # Get the players
-        players_dict = await utils.get_players(ctx, requester)
+        players_dict = await utils.get_players(bot, channel, author, requester)
         if not players_dict:
-            return KahootGame.remove_session(ctx.channel.id)
+            return KahootGame.remove_session(channel.id)
 
-        return cls(ctx, requester, players_dict)
+        return cls(channel, requester, players_dict, author)
 
     @staticmethod
     def add_session(channel_id, password):
