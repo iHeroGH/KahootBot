@@ -17,9 +17,10 @@ class KahootGame:
     OPEN_ENDED_TIME = 120 # The time to wait for a message to be typed
     MAX_STRIKES = 3 # The max amount of strikes permitted before the game is cancelled
 
-    def __init__(self, channel_id: int, requester: KahootRequester, players_dict: dict, author = None):
+    def __init__(self, bot, channel: discord.TextChannel, requester: KahootRequester, players_dict: dict, author = None):
 
-        self.channel_id = channel_id
+        self.bot = bot
+        self.channel = channel
         self.author = author
         self.requester = requester
         self.questions = requester.questions
@@ -56,7 +57,7 @@ class KahootGame:
         if not players_dict:
             return KahootGame.remove_session(channel.id)
 
-        return cls(channel, requester, players_dict, author)
+        return cls(bot, channel, requester, players_dict, author)
 
     @staticmethod
     def add_session(channel_id, password):
@@ -74,11 +75,11 @@ class KahootGame:
     def total_question_count(self):
         return len(self.questions)
 
-    async def play_game(self, abstract=False):
+    async def play_game(self):
         strikes = 0
         while self.shuffle:
             # If the game was cancelled prematurely
-            if self.ctx.channel.id not in KahootGame.kahoot_sessions.keys():
+            if self.channel.id not in KahootGame.kahoot_sessions.keys():
                 self.shuffle = []
                 break
             # Get a question and go to the next in the shuffle
@@ -124,7 +125,7 @@ class KahootGame:
             if question_type != 'open_ended':
                 params['components'] = components
 
-            question_message = await self.ctx.send(**params)
+            question_message = await self.channel.send(**params)
 
             answered = []
             correct = []
@@ -134,11 +135,11 @@ class KahootGame:
                     return False
 
                 if p.user not in self.players_dict.keys() or p.user in answered:
-                    self.ctx.bot.loop.create_task(p.response.defer_update())
+                    self.bot.loop.create_task(p.response.defer_update())
                     return False
                 else:
                     answered.append(p.user)
-                    self.ctx.bot.loop.create_task(p.response.send_message(f"You chose \"**{p.component.label}**\"!", ephemeral=True))
+                    self.bot.loop.create_task(p.response.send_message(f"You chose \"**{p.component.label}**\"!", ephemeral=True))
 
                 if p.component in correct_answers:
                     correct.append(p.user)
@@ -153,7 +154,7 @@ class KahootGame:
                     return False
                 else:
                     answered.append(message.author)
-                    self.ctx.bot.loop.create_task(message.add_reaction("✅"))
+                    self.bot.loop.create_task(message.add_reaction("✅"))
 
                 if message.content.lower() in correct_answer_strings:
                     correct.append(message.author)
@@ -163,9 +164,9 @@ class KahootGame:
 
             try:
                 if question_type == 'open_ended':
-                    await self.ctx.bot.wait_for('message', check=open_ended_check, timeout=self.OPEN_ENDED_TIME)
+                    await self.bot.wait_for('message', check=open_ended_check, timeout=self.OPEN_ENDED_TIME)
                 else:
-                    await self.ctx.bot.wait_for("component_interaction", check=check, timeout=self.QUIZ_TIME)
+                    await self.bot.wait_for("component_interaction", check=check, timeout=self.QUIZ_TIME)
             except asyncio.TimeoutError:
                 if not answered:
                     strikes += 1
@@ -191,7 +192,7 @@ class KahootGame:
             output_message = correct_answers_string + "\n\n"
             output_message += utils.get_random_message(correct)
             output_message += "\n".join([i.mention for i in correct]) if correct else ""
-            await self.ctx.send(output_message)
+            await self.channel.send(output_message)
 
             await asyncio.sleep(self.QUESTION_TIME)
 
