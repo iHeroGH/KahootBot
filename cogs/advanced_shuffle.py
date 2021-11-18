@@ -35,7 +35,7 @@ class AdvancedShuffle(vbu.Cog):
 
         await asyncio.sleep(self.MINUTE_DELAY * 60)
 
-    @vbu.Cog.listner()
+    @vbu.Cog.listener()
     async def on_ready(self):
         async with self.bot.database() as db:
             activated_rows = await db("SELECT channel_id FROM frenzy_activated WHERE activated = $1", True)
