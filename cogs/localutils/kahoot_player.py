@@ -33,7 +33,7 @@ class KahootGame:
 
 
     @classmethod
-    async def create_game(cls, bot, channel: discord.TextChannel, author:discord.User, kahoot_str: str):
+    async def create_game(cls, bot, channel: discord.TextChannel, author: discord.User, kahoot_str: str):
 
         # Make sure they're not already playing
         if channel.id in KahootGame.get_sessions():

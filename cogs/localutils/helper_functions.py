@@ -198,18 +198,12 @@ async def get_players(bot, channel, author, requester):
         if p.component.custom_id.lower() == "cancel":
             bot.loop.create_task(p.response.defer_update())
 
-            if p.user == author:
-                return True
-
-            return False
+            return check_author(p.guild, p.user, author)
 
         if p.component.custom_id.lower() == "continue":
             bot.loop.create_task(p.response.defer_update())
 
-            if p.user == author:
-                return True
-
-            return False
+            return check_author(p.guild, p.user, author)
 
         if p.user in players.keys():
             bot.loop.create_task(p.response.defer_update())
@@ -244,6 +238,15 @@ async def get_players(bot, channel, author, requester):
     await disable_components(join_message, components,'\n'.join([player.mention for player in players.keys()]))
 
     return players
+
+def check_author(guild, user, author):
+    """
+    This function checks if the user is the author
+    """
+    if author:
+        return user.id == author.id
+    else:
+        return guild.get_member(user.id).guild_permissions.manage_guild
 
 def get_random_message(correct):
     """
