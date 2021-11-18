@@ -30,9 +30,9 @@ class AdvancedShuffle(vbu.Cog):
 
         current_kahoot += 1
 
-    @vbu.command(aliases=['start'])
+    @vbu.command(aliases=['start', 'begin'])
     @commands.has_permissions(manage_guild=True)
-    async def begin(self, ctx):
+    async def beginfrenzy(self, ctx):
         """
         Start playing in Frenzy Mode in the current channel
         """
@@ -55,7 +55,7 @@ class AdvancedShuffle(vbu.Cog):
     @commands.has_permissions(manage_guild=True)
     async def add(self, ctx: vbu.Context, *, ids: str):
         """
-        A command to add multiple IDs to a channel at once. Enter IDs separated by a space (ID1, ID2, ID3)
+        Adds multiple IDs to a channel at once. (ID1 ID2 ID3 etc)
         """
         ids = ids.split(" ")
 
@@ -82,7 +82,7 @@ class AdvancedShuffle(vbu.Cog):
     @commands.has_permissions(manage_guild=True)
     async def remove(self, ctx: vbu.Context, *, ids: str):
         """
-        A command to remove multiple IDs to a channel at once. Enter IDs separated by a space (ID1, ID2, ID3)
+        Removes multiple IDs from a channel at once. (ID1 ID2 ID3 etc)
         """
         ids = ids.split(" ")
 
@@ -98,7 +98,7 @@ class AdvancedShuffle(vbu.Cog):
     @commands.has_permissions(manage_guild=True)
     async def removeall(self, ctx: vbu.Context):
         """
-        A command to remove all the IDs at once
+        Removes all the IDs from a channel at once
         """
         curr_pairs = await self.get_from_db(ctx.channel.id)
         formatted_message = self.get_formatted_message(curr_pairs)
@@ -112,11 +112,12 @@ class AdvancedShuffle(vbu.Cog):
     @commands.has_permissions(manage_guild=True)
     async def list(self, ctx: vbu.Context, names_only = False):
         """
-        Lists the current list of name: id pairs. Set names_only to True to only get the names.
+        Sends the current list of "name: id" pairs.
         """
 
         curr_pairs = await self.get_from_db(ctx.channel.id)
         await ctx.send("__Name: ID__" + self.get_formatted_message(curr_pairs))
+
 
     async def get_from_db(self, channel_id):
         async with self.bot.database() as db:
