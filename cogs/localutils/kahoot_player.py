@@ -37,7 +37,6 @@ class KahootGame:
         if ctx.channel.id in KahootGame.get_sessions():
             return await ctx.send("A game is already being hosted in this channel!")
 
-
         # Get the requester
         _, requester = await utils.setup_kahoot(ctx, kahoot_str)
         if not requester:

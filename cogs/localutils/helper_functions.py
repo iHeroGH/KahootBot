@@ -51,6 +51,7 @@ async def setup_kahoot(ctx, kahoot):
             kahoot = await ctx.bot.wait_for("message", timeout=60, check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
         except asyncio.TimeoutError:
             await ctx.send("Still there? Timing Out due to inactivity.")
+            return (None, None)
         kahoot = kahoot.content
 
     kahoot_id, requester = await validate_requester(ctx, kahoot)
