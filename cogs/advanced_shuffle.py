@@ -53,7 +53,7 @@ class AdvancedShuffle(vbu.Cog):
         Start playing in Frenzy Mode in the current channel
         """
         async with self.bot.database() as db:
-            await db("UPDATE frenzy_activated DO SET activated = $2 WHERE channel_id = $1", ctx.channel.id, True)
+            await db("UPDATE frenzy_activated SET activated = $2 WHERE channel_id = $1", ctx.channel.id, True)
 
         kahoots = await self.get_from_db(ctx.channel.id, only_id=True)
 
@@ -68,7 +68,7 @@ class AdvancedShuffle(vbu.Cog):
         Stop playing in Frenzy Mode in the current channel
         """
         async with self.bot.database() as db:
-            await db("UPDATE frenzy_activated DO SET activated = $2 WHERE channel_id = $1", ctx.channel.id, False)
+            await db("UPDATE frenzy_activated SET activated = $2 WHERE channel_id = $1", ctx.channel.id, False)
 
         self.activated_channels[ctx.channel.id] = None
 
