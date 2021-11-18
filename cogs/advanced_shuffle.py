@@ -9,11 +9,11 @@ import random
 class AdvancedShuffle(vbu.Cog):
 
     @tasks.loop(seconds=3)
-    async def kahoot_task(self, ctx, kahoots):
+    async def kahoot_task(self, ctx: vbu.Context, kahoots):
         current_kahoot = 0
 
         # Create a game and see if we succeeded
-        kahoot_game = await KahootGame.create_game(self.ctx, kahoots[current_kahoot])
+        kahoot_game = await KahootGame.create_game(ctx, kahoots[current_kahoot])
         if not isinstance(kahoot_game, KahootGame):
             return
 
@@ -22,7 +22,7 @@ class AdvancedShuffle(vbu.Cog):
 
         # Send the final message
         final_message = kahoot_game.get_final_message()
-        await self.ctx.send(final_message)
+        await ctx.send(final_message)
 
         # Remove the lock
         if ctx.channel.id in KahootGame.get_sessions():
