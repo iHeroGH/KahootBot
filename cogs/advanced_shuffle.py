@@ -8,17 +8,16 @@ import random
 
 class AdvancedShuffle(vbu.Cog):
 
-    @tasks.loop(seconds=3)
+    @tasks.loop(seconds=10)
     async def kahoot_task(self, ctx: vbu.Context, kahoots):
-        current_kahoot = 0
 
         # Create a game and see if we succeeded
-        kahoot_game = await KahootGame.create_game(ctx, kahoots[current_kahoot])
+        kahoot_game = await KahootGame.create_game(ctx, random.choice(kahoots))
         if not isinstance(kahoot_game, KahootGame):
             return
 
         # Play the game
-        await kahoot_game.play_game()
+        await kahoot_game.play_game(abstract=True)
 
         # Send the final message
         final_message = kahoot_game.get_final_message()
@@ -28,8 +27,6 @@ class AdvancedShuffle(vbu.Cog):
         if ctx.channel.id in KahootGame.get_sessions():
             return KahootGame.remove_session(ctx.channel.id)
 
-        current_kahoot += 1
-
     @vbu.command(aliases=['start', 'begin'])
     @commands.has_permissions(manage_guild=True)
     async def beginfrenzy(self, ctx: vbu.Context):
@@ -37,7 +34,6 @@ class AdvancedShuffle(vbu.Cog):
         Start playing in Frenzy Mode in the current channel
         """
         kahoots = [i['id'] for i in await self.get_from_db(ctx.channel.id)]
-        random.shuffle(kahoots)
 
         await ctx.send("Frenzy Mode has been activated in this channel!  Check the list by running the `list` command")
         self.kahoot_task.start(ctx, kahoots)

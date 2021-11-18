@@ -72,7 +72,7 @@ class KahootGame:
     def total_question_count(self):
         return len(self.questions)
 
-    async def play_game(self):
+    async def play_game(self, abstract=False):
         strikes = 0
         while self.shuffle:
             # If the game was cancelled prematurely
