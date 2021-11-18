@@ -1,3 +1,4 @@
+from re import S
 import voxelbotutils as vbu
 import discord
 from discord.ext import commands, tasks
@@ -11,16 +12,20 @@ import asyncio
 class AdvancedShuffle(vbu.Cog):
 
     MINUTE_DELAY = 3
-    activated_channels = []
+    activated_channels = set()
 
     async def kahoot_task(self, channel_id, kahoots):
 
+        # If we are still activated
+        if channel_id not in self.activated_channels:
+            return
+
         channel = self.bot.get_channel(channel_id)
 
-        # Create a game and see if we succeeded
+        # Try creating a game until it works
         kahoot_game = await KahootGame.create_game(self.bot, channel, None, random.choice(kahoots))
-        if not isinstance(kahoot_game, KahootGame):
-            return
+        while not isinstance(kahoot_game, KahootGame):
+            kahoot_game = await KahootGame.create_game(self.bot, channel, None, random.choice(kahoots))
 
         # Play the game
         await kahoot_game.play_game(abstract=True)
@@ -40,7 +45,7 @@ class AdvancedShuffle(vbu.Cog):
         async with self.bot.database() as db:
             activated_rows = await db("SELECT channel_id FROM frenzy_activated WHERE activated = $1", True)
 
-        self.activated_channels = [i['channel_id'] for i in activated_rows]
+        self.activated_channels = set([i['channel_id'] for i in activated_rows])
 
         for channel_id in self.activated_channels:
             curr_kahoots = await self.get_from_db(channel_id, only_id=True)
@@ -52,12 +57,15 @@ class AdvancedShuffle(vbu.Cog):
         """
         Start playing in Frenzy Mode in the current channel
         """
+        channel_id = ctx.channel.id
+
         async with self.bot.database() as db:
-            await db("UPDATE frenzy_activated SET activated = $2 WHERE channel_id = $1", ctx.channel.id, True)
+            await db("UPDATE frenzy_activated SET activated = $2 WHERE channel_id = $1", channel_id, True)
 
-        kahoots = await self.get_from_db(ctx.channel.id, only_id=True)
+        self.activated_channels.update(channel_id)
 
-        self.activated_channels[ctx.channel.id] = ctx, kahoots
+        kahoots = await self.get_from_db(channel_id, only_id=True)
+        await self.kahoot_task(channel_id, kahoots)
 
         await ctx.send("Frenzy Mode has been activated in this channel!  Check the list by running the `list` command")
 
@@ -67,10 +75,12 @@ class AdvancedShuffle(vbu.Cog):
         """
         Stop playing in Frenzy Mode in the current channel
         """
-        async with self.bot.database() as db:
-            await db("UPDATE frenzy_activated SET activated = $2 WHERE channel_id = $1", ctx.channel.id, False)
+        channel_id = ctx.channel.id
 
-        self.activated_channels[ctx.channel.id] = None
+        async with self.bot.database() as db:
+            await db("UPDATE frenzy_activated SET activated = $2 WHERE channel_id = $1", channel_id, False)
+
+        self.activated_channels.remove(channel_id)
 
         await ctx.send("Ending Frenzy-Mode after the current game has ended!")
 
