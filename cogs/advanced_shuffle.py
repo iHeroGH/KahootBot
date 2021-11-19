@@ -25,8 +25,7 @@ class AdvancedShuffle(vbu.Cog):
         # Try creating a game until it works
         kahoot_game = await KahootGame.create_game(self.bot, channel, None, random.choice(kahoots))
         if not isinstance(kahoot_game, KahootGame):
-            self.restart_task(channel_id, kahoots)
-            return
+            return self.restart_task(channel_id, kahoots)
 
         # Play the game
         await kahoot_game.play_game()
@@ -70,7 +69,11 @@ class AdvancedShuffle(vbu.Cog):
 
         # Activate frenzy mode
         async with self.bot.database() as db:
-            await db("UPDATE frenzy_activated SET activated = $2 WHERE channel_id = $1", channel_id, True)
+            activated_rows = await db("SELECT channel_id FROM frenzy_activated")
+            if channel_id in [i['channel_id'] for i in activated_rows]:
+                await db("UPDATE frenzy_activated SET activated = $2 WHERE channel_id = $1", channel_id, True)
+            else:
+                await db("INSERT INTO frenzy_activated (channel_id, activated) VALUES ($1, $2)", channel_id, True)
         self.activated_channels.add(channel_id)
 
         # Send a message
@@ -94,7 +97,11 @@ class AdvancedShuffle(vbu.Cog):
 
         # Deactivate frenzy mode
         async with self.bot.database() as db:
-            await db("UPDATE frenzy_activated SET activated = $2 WHERE channel_id = $1", channel_id, False)
+            activated_rows = await db("SELECT channel_id FROM frenzy_activated")
+            if channel_id in [i['channel_id'] for i in activated_rows]:
+                await db("UPDATE frenzy_activated SET activated = $2 WHERE channel_id = $1", channel_id, False)
+            else:
+                await db("INSERT INTO frenzy_activated (channel_id, activated) VALUES ($1, $2)", channel_id, False)
         self.activated_channels.remove(channel_id)
 
         # Send a message
