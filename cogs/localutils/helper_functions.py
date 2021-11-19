@@ -140,6 +140,7 @@ async def update_component_message(message, components, message_content=None):
     """
     # If we have a join message with an embed
     if message.embeds:
+        print(f"LOG: {message.embeds[0]}")
         # Get the embed
         embed = message.embeds[0]
 
@@ -218,13 +219,12 @@ async def get_players(bot, channel, author, requester):
         player_count = len(players.keys())
         join_button.label = f"Join {player_count}/{MAX_PLAYERS}"
 
+        players_string = '\n'.join([player.mention for player in players.keys()]) if players else "No one has joined yet!"
+
         if join_message.embeds:
-            if players:
-                update_string = '\n'.join([player.mention for player in players.keys()])
-            else:
-                update_string = "No one has joined!"
+            update_string = players_string
         else:
-            update_string = "Press \"Join\" to join the game!\n**Players**:\n" + '\n'.join([player.mention for player, _ in players])
+            update_string = "Press \"Join\" to join the game!\n**Players**:\n" + players_string
 
         bot.loop.create_task(update_component_message(join_message, components, update_string))
 
