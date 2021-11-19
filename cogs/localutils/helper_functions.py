@@ -140,14 +140,16 @@ async def update_component_message(message, components, message_content=None):
     """
     # If we have a join message with an embed
     if message.embeds:
-        print(f"LOG: {message.embeds[0]}")
         # Get the embed
         embed = message.embeds[0]
 
         # Update the embed
         if embed.fields:
             curr_field = embed.fields[0]
-            embed.set_field_at(0, name=curr_field.name, value=message_content)
+            if message_content:
+                embed.set_field_at(0, name=curr_field.name, value=message_content)
+            else:
+                embed.set_field_at(0, name=curr_field.name, value=curr_field.value)
         else:
             embed.description = message_content or embed.description
 
