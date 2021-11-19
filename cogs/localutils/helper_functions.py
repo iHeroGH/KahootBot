@@ -15,7 +15,7 @@ BASE_DATA_URL = "https://create.kahoot.it/rest/kahoots/{}/card/?includeKahoot=tr
 BASE_KAHOOT_URL = "https://create.kahoot.it/details/{}"
 
 MAX_PLAYERS = 20 # Max amount of players
-PLAYER_WAIT_TIME = 10 # Time to wait for players to join
+PLAYER_WAIT_TIME = 120 # Time to wait for players to join
 
 def find_id(input_string):
     """

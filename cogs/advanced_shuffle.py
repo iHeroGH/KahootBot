@@ -11,7 +11,7 @@ import asyncio
 
 class AdvancedShuffle(vbu.Cog):
 
-    MINUTE_DELAY = 0.25
+    MINUTE_DELAY = 3
     activated_channels = set()
 
     async def kahoot_task(self, channel_id, kahoots):
