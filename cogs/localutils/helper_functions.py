@@ -221,7 +221,7 @@ async def get_players(bot, channel, author, requester):
         player_count = len(players.keys())
         join_button.label = f"Join {player_count}/{MAX_PLAYERS}"
 
-        players_string = '\n'.join([player.mention for player in players.keys()]) if players else "No one has joined yet!"
+        players_string = '\n'.join([player.mention for player in players.keys()]) if players else "No one joined the game in time!"
 
         if join_message.embeds:
             update_string = players_string
