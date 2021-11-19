@@ -61,12 +61,19 @@ class AdvancedShuffle(vbu.Cog):
         """
         channel_id = ctx.channel.id
 
+        # Check if we're already Frenzied
+        if channel_id in self.activated_channels:
+            return await ctx.send("Frenzy Mode is already activated in this channel!")
+
+        # Activate frenzy mode
         async with self.bot.database() as db:
             await db("UPDATE frenzy_activated SET activated = $2 WHERE channel_id = $1", channel_id, True)
         self.activated_channels.add(channel_id)
 
+        # Send a message
         await ctx.send("Frenzy Mode has been activated in this channel! Check the list by running the `list` command")
 
+        # Start frenzying
         kahoots = await self.get_from_db(channel_id, only_id=True)
         await self.kahoot_task(channel_id, kahoots)
 
@@ -78,11 +85,16 @@ class AdvancedShuffle(vbu.Cog):
         """
         channel_id = ctx.channel.id
 
+        # Make sure we've been activated
+        if channel_id not in self.activated_channels:
+            return await ctx.send("Frenzy Mode is not activated in this channel!")
+
+        # Deactivate frenzy mode
         async with self.bot.database() as db:
             await db("UPDATE frenzy_activated SET activated = $2 WHERE channel_id = $1", channel_id, False)
-
         self.activated_channels.remove(channel_id)
 
+        # Send a message
         await ctx.send("Ending Frenzy-Mode after the current game has ended!")
 
     @vbu.command(aliases=['addids', 'addid'])
