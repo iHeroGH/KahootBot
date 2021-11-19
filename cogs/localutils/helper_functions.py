@@ -133,7 +133,7 @@ def get_footer_items(creator_name:str = None, created_at:dt = None, creator_icon
 
     return footer_items
 
-async def update_component_message(message, components, message_content=None):
+async def update_component_message(message, components, message_content="None"):
     """
     This function takes the join-game message and updates it with the given content
     """
