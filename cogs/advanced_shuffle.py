@@ -25,7 +25,7 @@ class AdvancedShuffle(vbu.Cog):
         # Try creating a game until it works
         kahoot_game = await KahootGame.create_game(self.bot, channel, None, random.choice(kahoots))
         if not isinstance(kahoot_game, KahootGame):
-            return self.restart_task(channel_id, kahoots)
+            return await self.restart_task(channel_id, kahoots)
 
         # Play the game
         await kahoot_game.play_game()
@@ -38,7 +38,7 @@ class AdvancedShuffle(vbu.Cog):
         if channel.id in KahootGame.get_sessions():
             KahootGame.remove_session(channel.id)
 
-        self.restart_task(channel_id, kahoots)
+        await self.restart_task(channel_id, kahoots)
 
     async def restart_task(self, channel_id, kahoots):
         await asyncio.sleep(self.MINUTE_DELAY * 60)
