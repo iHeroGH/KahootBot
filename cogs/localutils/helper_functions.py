@@ -14,7 +14,8 @@ MATCHER = re.compile(r'[0-9a-zA-Z-]{35,}')
 BASE_DATA_URL = "https://create.kahoot.it/rest/kahoots/{}/card/?includeKahoot=true"
 BASE_KAHOOT_URL = "https://create.kahoot.it/details/{}"
 
-MAX_PLAYERS = 20
+MAX_PLAYERS = 20 # Max amount of players
+PLAYER_WAIT_TIME = 120 # Time to wait for players to join
 
 def find_id(input_string):
     """
@@ -133,7 +134,7 @@ def get_footer_items(creator_name:str = None, created_at:dt = None, creator_icon
 
     return footer_items
 
-async def update_component_message(message, components, message_content="None"):
+async def update_component_message(message, components, message_content=None):
     """
     This function takes the join-game message and updates it with the given content
     """
@@ -218,7 +219,10 @@ async def get_players(bot, channel, author, requester):
         join_button.label = f"Join {player_count}/{MAX_PLAYERS}"
 
         if join_message.embeds:
-            update_string = '\n'.join([player.mention for player in players.keys()])
+            if players:
+                update_string = '\n'.join([player.mention for player in players.keys()])
+            else:
+                update_string = "No one has joined!"
         else:
             update_string = "Press \"Join\" to join the game!\n**Players**:\n" + '\n'.join([player.mention for player, _ in players])
 
@@ -227,7 +231,7 @@ async def get_players(bot, channel, author, requester):
         return player_count >= MAX_PLAYERS
 
     try:
-        payload = await bot.wait_for("component_interaction", check=check, timeout=120)
+        payload = await bot.wait_for("component_interaction", check=check, timeout=PLAYER_WAIT_TIME)
         if payload.component.custom_id.lower() == "cancel":
             await channel.send("The game has been cancelled.")
             await disable_components(join_message, components)
