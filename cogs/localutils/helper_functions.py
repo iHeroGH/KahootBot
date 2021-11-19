@@ -207,6 +207,10 @@ async def get_players(bot, channel, author, requester):
         if p.component.custom_id.lower() == "continue":
             bot.loop.create_task(p.response.defer_update())
 
+            # Can't continue if there's no one in the game
+            if not len(players.keys()):
+                return False
+
             return check_author(p.guild, p.user, author)
 
         if p.user in players.keys():
