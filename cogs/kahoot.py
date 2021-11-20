@@ -77,7 +77,7 @@ class KahootCommand(vbu.Cog):
         Plays a quiz
         """
         # Send a confirmation message
-        await ctx.send(f"Starting Kahoot game with ID {kahoot}!", ephemeral=True)
+        await ctx.send(f"Starting Kahoot game with ID {kahoot}!")
 
         # Create a game and see if we succeeded
         kahoot_game = await KahootGame.create_game(self.bot, ctx.channel, ctx.author, kahoot)
