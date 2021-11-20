@@ -132,6 +132,8 @@ class KahootRequester(object):
             if 'video' in question_obj.keys() and 'id' in question_obj['video'].keys():
                 if 'fullUrl' in question_obj['video'].keys(): # If the video has a URL
                     question_video = question_obj['video']['fullUrl'] or question_video
+                elif (video_id:=question_obj['video']['id']):
+                    question_video = f"https://www.youtube.com/watch?v={video_id}"
 
             # Answers
             answers = []
