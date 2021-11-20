@@ -40,7 +40,7 @@ class KahootGame:
             return await channel.send("A game is already being hosted in this channel!")
 
         # Get the requester
-        _, requester = await utils.setup_kahoot(channel, author, kahoot_str)
+        _, requester = await utils.setup_kahoot(bot, channel, author, kahoot_str)
         if not requester:
             return
 

@@ -44,12 +44,12 @@ def get_quiz_link(kahoot_id):
 
     return BASE_KAHOOT_URL.format(kahoot_id)
 
-async def setup_kahoot(channel: discord.TextChannel, author: discord.User, kahoot):
+async def setup_kahoot(bot, channel: discord.TextChannel, author: discord.User, kahoot):
     # Get a message
     if not kahoot:
         await channel.send("What quiz would you like to play? (Either the link or the long ID from <https://create.kahoot.it/>)")
         try:
-            kahoot = await channel.bot.wait_for("message", timeout=60, check=lambda m: m.author == author and m.channel == channel)
+            kahoot = await bot.wait_for("message", timeout=60, check=lambda m: m.author == author and m.channel == channel)
         except asyncio.TimeoutError:
             await channel.send("Still there? Timing Out due to inactivity.")
             return (None, None)
