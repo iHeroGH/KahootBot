@@ -172,7 +172,7 @@ class AdvancedShuffle(vbu.Cog):
     @commands.has_permissions(manage_guild=True)
     async def list(self, ctx: vbu.Context, names_only = False):
         """
-        Sends the current list of "name: id" pairs.
+        Sends the current list of "name: id" pairs. Set names_only to 1 to only get the names
         """
 
         curr_pairs = await self.get_from_db(ctx.channel.id)
