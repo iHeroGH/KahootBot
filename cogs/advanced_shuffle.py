@@ -176,7 +176,10 @@ class AdvancedShuffle(vbu.Cog):
         """
 
         curr_pairs = await self.get_from_db(ctx.channel.id)
-        await ctx.send("__Name: ID__" + self.get_formatted_message(curr_pairs))
+
+        identifier = "__Name__" if names_only else "__Name: ID__"
+        formatted_list = self.get_formatted_message(curr_pairs, names_only)
+        await ctx.send(identifier, formatted_list)
 
 
     async def get_from_db(self, channel_id, only_id=False):
