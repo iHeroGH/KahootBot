@@ -195,6 +195,18 @@ class AdvancedShuffle(vbu.Cog):
                 curr_pairs = [i['id'] for i in curr_pairs]
             return curr_pairs
 
+    @vbu.command(aliases=['activatedchannels'])
+    @commands.is_owner()
+    async def activated(self, ctx: vbu.Context):
+        """
+        Sends a list of all the channels that are currently activated
+        """
+        if not self.activated_channels:
+            return await ctx.send("No channels are currently activated!")
+
+        formatted_list = [self.bot.get_channel(i).mention for i in self.activated_channels]
+        await ctx.send(f"Activated Channels:\n{formatted_list}")
+
     def get_formatted_message(self, pairs = None, names_only = False):
         if not pairs:
             return "\nNo pairs have been created!"
