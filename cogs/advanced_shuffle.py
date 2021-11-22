@@ -76,11 +76,17 @@ class AdvancedShuffle(vbu.Cog):
                 await db("INSERT INTO frenzy_activated (channel_id, activated) VALUES ($1, $2)", channel_id, True)
         self.activated_channels.add(channel_id)
 
+        # Start frenzying
+        kahoots = await self.get_from_db(channel_id, only_id=True)
+
+        # If we don't have any kahoots, we can't play
+        if not kahoots:
+            return await ctx.send("No Kahoots have been added to this channel! Run the `add` command to add some!")
+
         # Send a message
         await ctx.send("Frenzy Mode has been activated in this channel! Check the list by running the `list` command")
 
-        # Start frenzying
-        kahoots = await self.get_from_db(channel_id, only_id=True)
+        # Start the task
         await self.kahoot_task(channel_id, kahoots)
 
     @vbu.command(aliases=['stop'])
