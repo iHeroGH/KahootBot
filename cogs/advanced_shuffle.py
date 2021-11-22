@@ -205,7 +205,7 @@ class AdvancedShuffle(vbu.Cog):
             return await ctx.send("No channels are currently activated!")
 
         formatted_list = [self.bot.get_channel(i).mention for i in self.activated_channels]
-        await ctx.send(f"Activated Channels:\n{formatted_list}")
+        await ctx.send(f"Activated Channels:\n{' '.join(formatted_list)}")
 
     def get_formatted_message(self, pairs = None, names_only = False):
         if not pairs:
