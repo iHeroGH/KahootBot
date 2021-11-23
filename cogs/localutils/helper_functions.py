@@ -139,6 +139,8 @@ async def update_component_message(message, components, message_content=None):
     This function takes the join-game message and updates it with the given content
     """
     # If we have a join message with an embed
+
+
     if message.embeds:
         # Get the embed
         embed = message.embeds[0]
@@ -153,9 +155,15 @@ async def update_component_message(message, components, message_content=None):
         else:
             embed.description = message_content or embed.description
 
-        await message.edit(embed=embed, components=components)
+        try:
+            await message.edit(embed=embed, components=components)
+        except:
+            pass
     else:
-        await message.edit(content=message_content, components=components) if message_content else await message.edit(components=components)
+        try:
+            await message.edit(content=message_content, components=components) if message_content else await message.edit(components=components)
+        except:
+            pass
 
 async def disable_components(message, components, message_content=None):
     """
