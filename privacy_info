@@ -1,0 +1,16 @@
+Welcome to KahootBot!
+
+To keep it short: KahootBot only stores some channel IDs when you activate "Frenzy Mode" (which randomly sends a Kahoot every few minutes from a list you create into a channel)
+
+KahootBot stores no messages
+KahootBot stores no user info (other than your score for a specific Kahoot game at a time, which gets deleted immediately when the game ends)
+KahootBot does not affect your Kahoot or Discord account in any way.
+
+The code is public and can be viewed by anyone (including you!) to verify this information.
+
+Feel free to contact me through Discord at Hero#2313 about any privacy concerns
+
+
+Some general terms of service:
+The bot can only be used to get a Kahoot game from https://create.kahoot.it/ and retrieve public information about it or play the Kahoot directly in Discord
+Using the bot to attempt to manipulate Kahoot games or the Kahoot website may result in blacklisting from the bot and its services.
