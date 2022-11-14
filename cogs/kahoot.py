@@ -54,6 +54,8 @@ class KahootCommand(vbu.Cog):
         except:
             await ctx.send("Something went wrong sending the embed.")
 
+        self.bot.logger.info(f"Data Sent for {kahoot}")
+
     @vbu.command(aliases=['cancelgame', 'end'])
     async def cancel(self, ctx: vbu.Context, password: str = None):
         """
@@ -94,6 +96,8 @@ class KahootCommand(vbu.Cog):
         # Remove the lock
         if ctx.channel.id in KahootGame.get_sessions():
             return KahootGame.remove_session(ctx.channel.id)
+
+        self.bot.logger.info(f"Kahoot Game played {kahoot}")
 
 
 
