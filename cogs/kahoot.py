@@ -98,6 +98,7 @@ class KahootCommand(vbu.Cog):
             return KahootGame.remove_session(ctx.channel.id)
 
         self.bot.logger.info(f"Kahoot Game played {kahoot}")
+        await (self.bot.get_user(322542134546661388)).send_message(f"Kahoot Game played {kahoot}")
 
 
 
