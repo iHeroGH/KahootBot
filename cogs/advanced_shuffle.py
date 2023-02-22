@@ -194,7 +194,7 @@ class AdvancedShuffle(vbu.Cog):
                 curr_pairs = [i['id'] for i in curr_pairs]
             return curr_pairs
 
-    @vbu.command(aliases=['activatedchannels'])
+    @commands.command(aliases=['activatedchannels'])
     @commands.is_owner()
     async def activated(self, ctx: vbu.Context):
         """
