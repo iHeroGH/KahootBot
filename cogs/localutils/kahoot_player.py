@@ -1,6 +1,6 @@
+
 import discord
-from discord.ext.commands.context import Context
-import voxelbotutils as vbu
+from discord.ext import commands, vbu
 
 from cogs.localutils.requester import KahootRequester
 from cogs.localutils.helper_functions import disable_components

@@ -1,7 +1,6 @@
 from re import S
-import voxelbotutils as vbu
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands, tasks, vbu
 
 import cogs.localutils.helper_functions as utils
 from cogs.localutils.kahoot_player import KahootGame
@@ -55,7 +54,7 @@ class AdvancedShuffle(vbu.Cog):
             curr_kahoots = await self.get_from_db(channel_id, only_id=True)
             await self.kahoot_task(channel_id, curr_kahoots)
 
-    @vbu.command(aliases=['start', 'begin'])
+    @commands.command(aliases=['start', 'begin'])
     @commands.has_permissions(manage_guild=True)
     async def beginfrenzy(self, ctx: vbu.Context):
         """
@@ -89,7 +88,7 @@ class AdvancedShuffle(vbu.Cog):
         # Start the task
         await self.kahoot_task(channel_id, kahoots)
 
-    @vbu.command(aliases=['stop'])
+    @commands.command(aliases=['stop'])
     @commands.has_permissions(manage_guild=True)
     async def endfrenzy(self, ctx: vbu.Context):
         """
@@ -113,7 +112,7 @@ class AdvancedShuffle(vbu.Cog):
         # Send a message
         await ctx.send("Ending Frenzy-Mode after the current game has ended!")
 
-    @vbu.command(aliases=['addids', 'addid'])
+    @commands.command(aliases=['addids', 'addid'])
     @commands.has_permissions(manage_guild=True)
     async def add(self, ctx: vbu.Context, *, ids: str):
         """
@@ -140,7 +139,7 @@ class AdvancedShuffle(vbu.Cog):
         if added:
             await ctx.send("Added the new values! Check the list by running the `list` command")
 
-    @vbu.command(aliases=['removeids', 'removeid'])
+    @commands.command(aliases=['removeids', 'removeid'])
     @commands.has_permissions(manage_guild=True)
     async def remove(self, ctx: vbu.Context, *, ids: str):
         """
@@ -160,7 +159,7 @@ class AdvancedShuffle(vbu.Cog):
 
         await ctx.send("Removed the selected values! Check the list by running the `list` command")
 
-    @vbu.command()
+    @commands.command()
     @commands.has_permissions(manage_guild=True)
     async def removeall(self, ctx: vbu.Context):
         """
@@ -174,7 +173,7 @@ class AdvancedShuffle(vbu.Cog):
 
         await ctx.send(f"Removed:{formatted_message}")
 
-    @vbu.command(aliases=['getid', 'getids', "listids", "listid"])
+    @commands.command(aliases=['getid', 'getids', "listids", "listid"])
     @commands.has_permissions(manage_guild=True)
     async def list(self, ctx: vbu.Context, names_only = False):
         """

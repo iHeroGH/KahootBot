@@ -1,14 +1,15 @@
 from .localutils.kahoot_player import KahootGame
-import voxelbotutils as vbu
 import cogs.localutils as utils
 
+import discord
+from discord.ext import commands, vbu
 
 class KahootCommand(vbu.Cog):
 
     def __init__(self, bot):
         self.bot = bot
 
-    @vbu.command(aliases=['kahootdata', 'getdata', 'get'])
+    @commands.command(aliases=['kahootdata', 'getdata', 'get'])
     async def data(self, ctx: vbu.Context, kahoot: str = None):
         """
         Gets the data for a given kahoot.
@@ -56,7 +57,7 @@ class KahootCommand(vbu.Cog):
 
         self.bot.logger.info(f"Data Sent for {kahoot}")
 
-    @vbu.command(aliases=['cancelgame', 'end'])
+    @commands.command(aliases=['cancelgame', 'end'])
     async def cancel(self, ctx: vbu.Context, password: str = None):
         """
         Cancels the current kahoot game.
@@ -73,7 +74,7 @@ class KahootCommand(vbu.Cog):
         await ctx.send("Cancelling the game.")
         KahootGame.remove_session(ctx.channel.id)
 
-    @vbu.command(aliases=['kahoot', 'quiz'])
+    @commands.command(aliases=['kahoot', 'quiz'])
     async def play(self, ctx: vbu.Context, kahoot: str = None):
         """
         Plays a quiz

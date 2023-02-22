@@ -1,4 +1,3 @@
-import voxelbotutils as vbu
 from datetime import datetime as dt
 import re
 import asyncio
@@ -6,6 +5,7 @@ import random
 import string
 
 import discord
+from discord.ext import commands, vbu
 
 from cogs.localutils.requester import KahootRequester
 
