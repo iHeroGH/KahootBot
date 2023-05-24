@@ -11,7 +11,7 @@ class PingCommand(vbu.Cog):
 
         await ctx.send("Pong!")
     
-    @commands.command()
+    @commands.command(application_command_meta=commands.ApplicationCommandMeta())
     async def privacy(self, ctx: vbu.Context):
         """
         Sends the bot's privacy info link
