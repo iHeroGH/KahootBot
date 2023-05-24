@@ -14,7 +14,7 @@ class KahootCommand(vbu.Cog):
                         options = [
                             discord.ApplicationCommandOption(
                                 name="Kahoot ID",
-                                type=str,
+                                type=discord.ApplicationCommandOptionType.string,
                                 description="The ID of the quiz you want to get data for",
                                 required=False,
                             )
@@ -71,7 +71,7 @@ class KahootCommand(vbu.Cog):
                         options = [
                             discord.ApplicationCommandOption(
                                 name="Password",
-                                type=str,
+                                type=discord.ApplicationCommandOptionType.string,
                                 description="The password of the quiz to cancel",
                                 required=False,
                             )
@@ -97,7 +97,7 @@ class KahootCommand(vbu.Cog):
                         options = [
                             discord.ApplicationCommandOption(
                                 name="Kahoot ID",
-                                type=str,
+                                type=discord.ApplicationCommandOptionType.string,
                                 description="The ID of the quiz you want to play",
                                 required=False,
                             )
