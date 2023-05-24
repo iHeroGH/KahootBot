@@ -5,7 +5,8 @@ import humanize
 class KahootRequester(object):
     def __init__(self, quiz_data):
         self.quiz_data = quiz_data
-        self.card_data = self.quiz_data["card"]
+        if self.is_valid():
+            self.card_data = self.quiz_data["card"]
 
     @classmethod
     async def get_quiz_data(cls, quiz_link):
@@ -14,9 +15,19 @@ class KahootRequester(object):
                 return cls(await resp.json())
 
     def is_valid(self):
-        if "error" in self.quiz_data.keys():
-            return False
-        return True
+        return "error" not in self.quiz_data.keys()
+
+    def is_found(self):
+        return self.is_valid() or self.get_error() != "NOT_FOUND"
+
+    def is_open(self):
+        return self.is_valid() or self.get_error() != "FORBIDDEN"
+
+    def found_questions(self):
+        return bool(self.questions)
+
+    def get_error(self):
+        return self.quiz_data["error"]
 
     def get_title(self):
         title = None
@@ -91,7 +102,8 @@ class KahootRequester(object):
 
         return question_count
 
-    def get_questions(self):
+    @property
+    def questions(self):
         questions = {}
 
         if 'questions' not in self.quiz_data['kahoot'].keys():
@@ -120,6 +132,8 @@ class KahootRequester(object):
             if 'video' in question_obj.keys() and 'id' in question_obj['video'].keys():
                 if 'fullUrl' in question_obj['video'].keys(): # If the video has a URL
                     question_video = question_obj['video']['fullUrl'] or question_video
+                elif (video_id:=question_obj['video']['id']):
+                    question_video = f"https://www.youtube.com/watch?v={video_id}"
 
             # Answers
             answers = []

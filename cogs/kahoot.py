@@ -1,25 +1,30 @@
-from localutils.helper_functions import disable_components
-import voxelbotutils as vbu
-import localutils as utils
+from .localutils.kahoot_player import KahootGame
+import cogs.localutils as utils
 
 import discord
-
-import asyncio
-import random
+from discord.ext import commands, vbu
 
 class KahootCommand(vbu.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.kahoot_sessions = dict()
 
-    @vbu.command(aliases=['kahootdata', 'getdata', 'get'])
-    async def data(self, ctx: vbu.Context, kahoot: str = None):
+    @commands.command(application_command_meta=commands.ApplicationCommandMeta(
+                        options = [
+                            discord.ApplicationCommandOption(
+                                name="quiz_id",
+                                type=discord.ApplicationCommandOptionType.string,
+                                description="The ID of the quiz you want to get data for",
+                                required=False,
+                            )
+                        ]
+                      ))
+    async def data(self, ctx: vbu.Context, quiz_id: str = None):
         """
         Gets the data for a given kahoot.
         """
 
-        kahoot_id, requester = await utils.setup_kahoot(ctx, kahoot)
+        kahoot_id, requester = await utils.setup_kahoot(self.bot, ctx.channel, ctx.author, quiz_id)
 
         if not requester:
             return
@@ -59,7 +64,18 @@ class KahootCommand(vbu.Cog):
         except:
             await ctx.send("Something went wrong sending the embed.")
 
-    @vbu.command(aliases=['cancelgame', 'end'])
+        self.bot.logger.info(f"Data Sent for {quiz_id}")
+
+    @commands.command(application_command_meta=commands.ApplicationCommandMeta(
+                        options = [
+                            discord.ApplicationCommandOption(
+                                name="password",
+                                type=discord.ApplicationCommandOptionType.string,
+                                description="The password of the quiz to cancel",
+                                required=False,
+                            )
+                        ]
+                      ))
     async def cancel(self, ctx: vbu.Context, password: str = None):
         """
         Cancels the current kahoot game.
@@ -67,180 +83,51 @@ class KahootCommand(vbu.Cog):
         if not password:
             return await ctx.send("Check your DMs for the Kahoot game's password!")
 
-        if ctx.channel.id not in self.kahoot_sessions.keys():
+        if ctx.channel.id not in KahootGame.get_sessions():
             return await ctx.send("There is no Kahoot game in this channel!")
 
-        if password != self.kahoot_sessions[ctx.channel.id]:
+        if password != KahootGame.get_sessions()[ctx.channel.id]:
             return await ctx.send("The password you entered is incorrect!")
 
         await ctx.send("Cancelling the game.")
-        self.kahoot_sessions.pop(ctx.channel.id)
+        KahootGame.remove_session(ctx.channel.id)
 
-    @vbu.command(aliases=['kahoot', 'quiz'])
-    async def play(self, ctx: vbu.Context, kahoot: str = None):
+    @commands.command(application_command_meta=commands.ApplicationCommandMeta(
+                        options = [
+                            discord.ApplicationCommandOption(
+                                name="quiz_id",
+                                type=discord.ApplicationCommandOptionType.string,
+                                description="The ID of the quiz you want to play",
+                                required=False,
+                            )
+                            ]
+                        )
+                      )
+    async def play(self, ctx: vbu.Context, quiz_id: str = None):
         """
         Plays a quiz
         """
-         # Make sure they're not already playing
-        if ctx.channel.id in self.kahoot_sessions:
-            return await ctx.send("A game is already being hosted in this channel!")
+        # Send a confirmation message
+        await ctx.send(f"Starting Kahoot game!")
 
-        # Add the channel to the set of kahoot sessions
-        password = utils.get_password()
-        self.kahoot_sessions[ctx.channel.id] = password
+        # Create a game and see if we succeeded
+        kahoot_game = await KahootGame.create_game(self.bot, ctx.channel, ctx.author, quiz_id)
+        if not isinstance(kahoot_game, KahootGame):
+            return
 
-        # Send the user the password
-        await ctx.author.send(f"You have started a Kahoot game! If you must cancel the game at any point, run `/cancel {password}` in the channel of the game. Enjoy!")
+        # Play the game
+        await kahoot_game.play_game()
 
-        # Get the requester
-        _, requester = await utils.setup_kahoot(ctx, kahoot)
-        if not requester:
-            return self.kahoot_sessions.pop(ctx.channel.id)
-        # Get the players
-        players_dict = await utils.get_players(ctx, requester)
-        if not players_dict:
-            return self.kahoot_sessions.pop(ctx.channel.id)
-        player_count = len(players_dict.keys())
-
-        questions = requester.get_questions()
-
-        # Set the shuffle
-        shuffle = list(questions.keys())
-        total_question_count = len(shuffle)
-        print(shuffle)
-
-        random.shuffle(shuffle)
-
-        strikes = 0
-        while shuffle:
-            # If the game was cancelled prematurely
-            if ctx.channel.id not in self.kahoot_sessions.keys():
-                shuffle = []
-                break
-            # Get a question and go to the next in the shuffle
-            shuffle_obj = shuffle.pop(0)
-            question, _ = shuffle_obj
-
-            # Set up the question variables
-            question_type, answers, question_img, question_video = questions[shuffle_obj]
-
-            # Set up the answer buttons
-            action_rows = []
-            correct_answers = []
-            correct_answer_strings = []
-            for i, answer in enumerate(answers):
-                answer_string = answer[0]
-                answer_button = discord.ui.Button(label=answer_string, custom_id="answer" + str(i),  style=discord.ui.ButtonStyle.secondary)
-                action_row = discord.ui.ActionRow(answer_button)
-                action_rows.append(action_row)
-
-                if answer[1]:
-                    correct_answers.append(answer_button)
-                    correct_answer_strings.append(answer_string.lower())
-
-            # Put the buttons together
-            components = discord.ui.MessageComponents(
-                *action_rows
-            )
-
-            # Set up the embed
-            embed = vbu.Embed()
-            embed.color = 5047956
-            embed.description = question
-            embed.description += "\n(The next thing you type will be registered as your answer)" if question_type == 'open_ended' else ""
-            embed.description += f"\nVideo Link: {question_video}" if question_video else ""
-            if question_img:
-                embed.set_image(url=question_img)
-            embed.set_footer(requester.get_title() + " • " + f"{total_question_count - len(shuffle)}/{total_question_count}")
-
-            params = {
-                'embed': embed
-            }
-            if question_type != 'open_ended':
-                params['components'] = components
-
-            question_message = await ctx.send(**params)
-
-            answered = []
-            correct = []
-            def check(p):
-
-                if p.message.id != question_message.id:
-                    return False
-
-                if p.user not in players_dict.keys() or p.user in answered:
-                    ctx.bot.loop.create_task(p.response.defer_update())
-                    return False
-                else:
-                    answered.append(p.user)
-                    ctx.bot.loop.create_task(p.response.send_message(f"You chose \"**{p.component.label}**\"!", ephemeral=True))
-
-                if p.component in correct_answers:
-                    correct.append(p.user)
-                    players_dict[p.user] += 1
-
-                return len(answered) == player_count
-
-            def open_ended_check(message):
-                if message.channel.id != question_message.channel.id:
-                    return False
-                if message.author not in players_dict.keys() or message.author in answered:
-                    return False
-                else:
-                    answered.append(message.author)
-                    self.bot.loop.create_task(message.add_reaction("✅"))
-
-                if message.content.lower() in correct_answer_strings:
-                    correct.append(message.author)
-                    players_dict[message.author] += 1
-
-                return len(answered) == player_count
-
-            try:
-                if question_type == 'open_ended':
-                    await ctx.bot.wait_for('message', check=open_ended_check, timeout=120)
-                else:
-                    await ctx.bot.wait_for("component_interaction", check=check, timeout=60)
-            except asyncio.TimeoutError:
-                if not answered:
-                    strikes += 1
-                if strikes == 3:
-                    break
-                if question_type != 'open-ended':
-                    await disable_components(question_message, components)
-
-            if answered:
-                strikes = 0
-
-            await disable_components(question_message, components)
-
-            # Send a final message
-            if len(correct_answers) > 1:
-                correct_answers_string = '**\" and \"**'.join([answer.label for answer in correct_answers])
-                correct_answers_string = f"The correct answers were \"**{correct_answers_string}**\""
-            elif not correct_answers:
-                correct_answers_string = f"There were no correct answers!"
-            else:
-                correct_answers_string = f"The correct answer was \"**{correct_answers[0].label}**\""
-
-            output_message = correct_answers_string + "\n\n"
-            output_message += utils.get_random_message(correct)
-            output_message += "\n".join([i.mention for i in correct]) if correct else ""
-            await ctx.send(output_message)
-
-            await asyncio.sleep(5)
-
-
-        sorted_player_list = sorted(players_dict.items(), key=lambda x: x[1], reverse=True)
-
-        try:
-            await ctx.send(f"**__Winner__**\n{sorted_player_list[0][0].mention}\n\n**__Total Points__**\n" + "\n".join([f"{player.mention} - {score} ({int(score/total_question_count * 100)}%)" for player, score in sorted_player_list]))
-        except ZeroDivisionError:
-            pass
+        # Send the final message
+        final_message = kahoot_game.get_final_message()
+        await ctx.send(final_message)
 
         # Remove the lock
-        if ctx.channel.id in self.kahoot_sessions.keys():
-            self.kahoot_sessions.pop(ctx.channel.id)
+        if ctx.channel.id in KahootGame.get_sessions():
+            return KahootGame.remove_session(ctx.channel.id)
+
+        self.bot.logger.info(f"Kahoot Game played {quiz_id}")
+        await (self.bot.get_user(322542134546661388)).send(f"Kahoot Game played {quiz_id}")
 
 
 
