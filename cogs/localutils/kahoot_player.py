@@ -78,6 +78,7 @@ class KahootGame:
     async def play_game(self):
         strikes = 0
         while self.shuffle:
+            await asyncio.sleep(self.QUESTION_TIME)
             # If the game was cancelled prematurely
             if self.channel.id not in KahootGame.kahoot_sessions.keys():
                 self.shuffle = []
@@ -101,7 +102,7 @@ class KahootGame:
 
                 if answer[1]:
                     correct_answers.append(answer_button)
-                    correct_answer_strings.append(answer_string.lower())
+                    correct_answer_strings.append(answer_button.label)
             random.shuffle(action_rows)
 
             # Put the buttons together
@@ -193,8 +194,6 @@ class KahootGame:
             output_message += utils.get_random_message(correct)
             output_message += "\n".join([i.mention for i in correct]) if correct else ""
             await self.channel.send(output_message)
-
-            await asyncio.sleep(self.QUESTION_TIME)
 
     def get_final_message(self):
         sorted_player_list = sorted(self.players_dict.items(), key=lambda x: x[1], reverse=True)
