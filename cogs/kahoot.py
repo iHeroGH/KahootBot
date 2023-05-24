@@ -12,19 +12,19 @@ class KahootCommand(vbu.Cog):
     @commands.command(application_command_meta=commands.ApplicationCommandMeta(
                         options = [
                             discord.ApplicationCommandOption(
-                                name="kahoot_id",
+                                name="quiz_id",
                                 type=discord.ApplicationCommandOptionType.string,
                                 description="The ID of the quiz you want to get data for",
                                 required=False,
                             )
                         ]
                       ))
-    async def data(self, ctx: vbu.Context, kahoot: str = None):
+    async def data(self, ctx: vbu.Context, quiz_id: str = None):
         """
         Gets the data for a given kahoot.
         """
 
-        kahoot_id, requester = await utils.setup_kahoot(self.bot, ctx.channel, ctx.author, kahoot)
+        kahoot_id, requester = await utils.setup_kahoot(self.bot, ctx.channel, ctx.author, quiz_id)
 
         if not requester:
             return
@@ -64,7 +64,7 @@ class KahootCommand(vbu.Cog):
         except:
             await ctx.send("Something went wrong sending the embed.")
 
-        self.bot.logger.info(f"Data Sent for {kahoot}")
+        self.bot.logger.info(f"Data Sent for {quiz_id}")
 
     @commands.command(application_command_meta=commands.ApplicationCommandMeta(
                         options = [
@@ -95,7 +95,7 @@ class KahootCommand(vbu.Cog):
     @commands.command(application_command_meta=commands.ApplicationCommandMeta(
                         options = [
                             discord.ApplicationCommandOption(
-                                name="kahoot_id",
+                                name="quiz_id",
                                 type=discord.ApplicationCommandOptionType.string,
                                 description="The ID of the quiz you want to play",
                                 required=False,
@@ -103,7 +103,7 @@ class KahootCommand(vbu.Cog):
                             ]
                         )
                       )
-    async def play(self, ctx: vbu.Context, kahoot: str = None):
+    async def play(self, ctx: vbu.Context, quiz_id: str = None):
         """
         Plays a quiz
         """
@@ -111,7 +111,7 @@ class KahootCommand(vbu.Cog):
         await ctx.send(f"Starting Kahoot game!")
 
         # Create a game and see if we succeeded
-        kahoot_game = await KahootGame.create_game(self.bot, ctx.channel, ctx.author, kahoot)
+        kahoot_game = await KahootGame.create_game(self.bot, ctx.channel, ctx.author, quiz_id)
         if not isinstance(kahoot_game, KahootGame):
             return
 
@@ -126,8 +126,8 @@ class KahootCommand(vbu.Cog):
         if ctx.channel.id in KahootGame.get_sessions():
             return KahootGame.remove_session(ctx.channel.id)
 
-        self.bot.logger.info(f"Kahoot Game played {kahoot}")
-        await (self.bot.get_user(322542134546661388)).send(f"Kahoot Game played {kahoot}")
+        self.bot.logger.info(f"Kahoot Game played {quiz_id}")
+        await (self.bot.get_user(322542134546661388)).send(f"Kahoot Game played {quiz_id}")
 
 
 
