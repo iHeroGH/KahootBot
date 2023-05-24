@@ -9,7 +9,15 @@ class KahootCommand(vbu.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['kahootdata', 'getdata', 'get'], application_command_meta=commands.ApplicationCommandMeta())
+    @commands.command(aliases=['kahootdata', 'getdata', 'get'], 
+                      application_command_meta=commands.ApplicationCommandMeta(
+                        discord.ApplicationCommandOption(
+                            name="Kahoot ID",
+                            type=str,
+                            description="The ID of the quiz you want to get data for",
+                            required=False,
+                        )
+                      ))
     async def data(self, ctx: vbu.Context, kahoot: str = None):
         """
         Gets the data for a given kahoot.
@@ -57,7 +65,14 @@ class KahootCommand(vbu.Cog):
 
         self.bot.logger.info(f"Data Sent for {kahoot}")
 
-    @commands.command(aliases=['cancelgame', 'end'], application_command_meta=commands.ApplicationCommandMeta())
+    @commands.command(aliases=['cancelgame', 'end'], application_command_meta=commands.ApplicationCommandMeta(
+                        discord.ApplicationCommandOption(
+                            name="Password",
+                            type=str,
+                            description="The password of the quiz to cancel",
+                            required=False,
+                        )
+                      ))
     async def cancel(self, ctx: vbu.Context, password: str = None):
         """
         Cancels the current kahoot game.
@@ -74,7 +89,14 @@ class KahootCommand(vbu.Cog):
         await ctx.send("Cancelling the game.")
         KahootGame.remove_session(ctx.channel.id)
 
-    @commands.command(aliases=['kahoot', 'quiz'], application_command_meta=commands.ApplicationCommandMeta())
+    @commands.command(aliases=['kahoot', 'quiz'], application_command_meta=commands.ApplicationCommandMeta(
+                        discord.ApplicationCommandOption(
+                            name="Kahoot ID",
+                            type=str,
+                            description="The ID of the quiz you want to play",
+                            required=False,
+                        )
+                      ))
     async def play(self, ctx: vbu.Context, kahoot: str = None):
         """
         Plays a quiz
