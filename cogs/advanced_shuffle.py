@@ -112,7 +112,17 @@ class AdvancedShuffle(vbu.Cog):
         # Send a message
         await ctx.send("Ending Frenzy-Mode after the current game has ended!")
 
-    @commands.command(aliases=['addids', 'addid'], application_command_meta=commands.ApplicationCommandMeta())
+    @commands.command(application_command_meta=commands.ApplicationCommandMeta(
+                        options = [
+                            discord.ApplicationCommandOption(
+                                name='ids',
+                                type=discord.ApplicationCommandOptionType.string,
+                                description="The IDs to add to the channel",
+                                required=True
+                            )
+                        ]
+                        )
+                    )
     @commands.has_permissions(manage_guild=True)
     async def add(self, ctx: vbu.Context, *, ids: str):
         """
@@ -139,7 +149,17 @@ class AdvancedShuffle(vbu.Cog):
         if added:
             await ctx.send("Added the new values! Check the list by running the `list` command")
 
-    @commands.command(aliases=['removeids', 'removeid'], application_command_meta=commands.ApplicationCommandMeta())
+    @commands.command(application_command_meta=commands.ApplicationCommandMeta(
+                        options = [
+                            discord.ApplicationCommandOption(
+                                name='ids',
+                                type=discord.ApplicationCommandOptionType.string,
+                                description="The IDs to remove from the channel",
+                                required=True
+                            )
+                        ]
+                        )
+                    )
     @commands.has_permissions(manage_guild=True)
     async def remove(self, ctx: vbu.Context, *, ids: str):
         """
